@@ -1,4 +1,4 @@
-package de.vectordata.jvsl.crypt;
+package de.vectordata.jvsl.util;
 
 /**
  * Created by Daniel Lerch on 07.03.2018.
@@ -111,5 +111,11 @@ public class Util {
             return normalSize - mod + blockSize;
         else
             return normalSize;
+    }
+
+    static byte[] reverseBytes(byte[] b) {
+        byte[] reversed = new byte[b.length];
+        System.arraycopy(b, 1, reversed, 1, b.length - 1);
+        return reversed;
     }
 }
