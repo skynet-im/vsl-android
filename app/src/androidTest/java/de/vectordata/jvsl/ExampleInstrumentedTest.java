@@ -24,8 +24,4 @@ public class ExampleInstrumentedTest {
         assertEquals("de.vectordata.jvsl", appContext.getPackageName());
     }
 
-    @Test
-    public void blablabla() {
-
-    }
 }
