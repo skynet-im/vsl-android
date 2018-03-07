@@ -1,9 +1,8 @@
 package de.vectordata.jvsl.net.packet;
 
 import de.vectordata.jvsl.net.PacketHandler;
-import de.vectordata.jvsl.net.packet.length.ConstantLength;
-import de.vectordata.jvsl.net.packet.length.PacketLength;
 import de.vectordata.jvsl.util.PacketBuffer;
+import de.vectordata.jvsl.util.cscompat.Nullable;
 
 /**
  * Created by Twometer on 09.06.2017.
@@ -39,8 +38,8 @@ public class P01KeyExchange implements Packet {
     }
 
     @Override
-    public PacketLength getLength() {
-        return new ConstantLength(72);
+    public Nullable<Integer> getConstantLength() {
+        return new Nullable<>(72);
     }
 
     @Override
@@ -75,8 +74,4 @@ public class P01KeyExchange implements Packet {
         buffer.writeUInt16(oldestProduct);
     }
 
-    @Override
-    public boolean needsBigBuffer() {
-        return false;
-    }
 }

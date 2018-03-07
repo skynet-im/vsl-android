@@ -1,10 +1,9 @@
 package de.vectordata.jvsl.net.packet;
 
 import de.vectordata.jvsl.net.PacketHandler;
-import de.vectordata.jvsl.net.packet.length.ConstantLength;
-import de.vectordata.jvsl.net.packet.length.PacketLength;
 import de.vectordata.jvsl.net.packet.util.RequestType;
 import de.vectordata.jvsl.util.PacketBuffer;
+import de.vectordata.jvsl.util.cscompat.Nullable;
 
 /**
  * Created by Twometer on 09.06.2017.
@@ -27,8 +26,8 @@ public class P00Handshake implements Packet {
     }
 
     @Override
-    public PacketLength getLength() {
-        return new ConstantLength(1);
+    public Nullable<Integer> getConstantLength() {
+        return new Nullable<>(1);
     }
 
     @Override
@@ -49,10 +48,5 @@ public class P00Handshake implements Packet {
     @Override
     public void writePacket(PacketBuffer buffer) {
         buffer.writeByte((byte) requestType.ordinal());
-    }
-
-    @Override
-    public boolean needsBigBuffer() {
-        return false;
     }
 }

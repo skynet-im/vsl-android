@@ -1,10 +1,9 @@
 package de.vectordata.jvsl.net.packet;
 
 import de.vectordata.jvsl.net.PacketHandler;
-import de.vectordata.jvsl.net.packet.length.PacketLength;
-import de.vectordata.jvsl.net.packet.length.VariableLength;
 import de.vectordata.jvsl.util.PacketBuffer;
 import de.vectordata.jvsl.util.cscompat.DateTime;
+import de.vectordata.jvsl.util.cscompat.Nullable;
 
 /**
  * Created by Twometer on 09.06.2017.
@@ -41,8 +40,8 @@ public class P08FileHeader implements Packet {
     }
 
     @Override
-    public PacketLength getLength() {
-        return new VariableLength();
+    public Nullable<Integer> getConstantLength() {
+        return new Nullable<>(null);
     }
 
     @Override
@@ -79,8 +78,4 @@ public class P08FileHeader implements Packet {
         buffer.writeByteArray(sha256, false);
     }
 
-    @Override
-    public boolean needsBigBuffer() {
-        return false;
-    }
 }

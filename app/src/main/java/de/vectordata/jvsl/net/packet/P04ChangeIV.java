@@ -2,9 +2,8 @@ package de.vectordata.jvsl.net.packet;
 
 
 import de.vectordata.jvsl.net.PacketHandler;
-import de.vectordata.jvsl.net.packet.length.ConstantLength;
-import de.vectordata.jvsl.net.packet.length.PacketLength;
 import de.vectordata.jvsl.util.PacketBuffer;
+import de.vectordata.jvsl.util.cscompat.Nullable;
 
 /**
  * Created by Twometer on 09.06.2017.
@@ -30,8 +29,8 @@ public class P04ChangeIV implements Packet {
     }
 
     @Override
-    public PacketLength getLength() {
-        return new ConstantLength(32);
+    public Nullable<Integer> getConstantLength() {
+        return new Nullable<>(32);
     }
 
     @Override
@@ -54,8 +53,4 @@ public class P04ChangeIV implements Packet {
 
     }
 
-    @Override
-    public boolean needsBigBuffer() {
-        return false;
-    }
 }

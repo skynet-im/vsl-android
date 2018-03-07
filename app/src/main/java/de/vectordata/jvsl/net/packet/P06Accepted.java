@@ -2,10 +2,9 @@ package de.vectordata.jvsl.net.packet;
 
 
 import de.vectordata.jvsl.net.PacketHandler;
-import de.vectordata.jvsl.net.packet.length.ConstantLength;
-import de.vectordata.jvsl.net.packet.length.PacketLength;
 import de.vectordata.jvsl.net.packet.util.ProblemCategory;
 import de.vectordata.jvsl.util.PacketBuffer;
+import de.vectordata.jvsl.util.cscompat.Nullable;
 
 /**
  * Created by Twometer on 09.06.2017.
@@ -32,8 +31,8 @@ public class P06Accepted implements Packet {
     }
 
     @Override
-    public PacketLength getLength() {
-        return new ConstantLength(3);
+    public Nullable<Integer> getConstantLength() {
+        return new Nullable<>(3);
     }
 
     @Override
@@ -58,11 +57,6 @@ public class P06Accepted implements Packet {
         buffer.writeBool(accepted);
         buffer.writeByte(relatedPacket);
         buffer.writeByte((byte) problemCategory.ordinal());
-    }
-
-    @Override
-    public boolean needsBigBuffer() {
-        return false;
     }
 }
 

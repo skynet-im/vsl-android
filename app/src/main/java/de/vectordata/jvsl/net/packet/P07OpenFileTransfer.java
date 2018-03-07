@@ -1,9 +1,10 @@
 package de.vectordata.jvsl.net.packet;
 
 import de.vectordata.jvsl.net.PacketHandler;
-import de.vectordata.jvsl.net.packet.length.PacketLength;
-import de.vectordata.jvsl.net.packet.length.VariableLength;
+import de.vectordata.jvsl.net.packet.util.Identifier;
+import de.vectordata.jvsl.net.packet.util.StreamMode;
 import de.vectordata.jvsl.util.PacketBuffer;
+import de.vectordata.jvsl.util.cscompat.Nullable;
 
 /**
  * Created by Twometer on 09.06.2017.
@@ -28,8 +29,8 @@ public class P07OpenFileTransfer implements Packet {
     }
 
     @Override
-    public PacketLength getLength() {
-        return new VariableLength();
+    public Nullable<Integer> getConstantLength() {
+        return new Nullable<>(null);
     }
 
     @Override
@@ -52,10 +53,5 @@ public class P07OpenFileTransfer implements Packet {
     public void writePacket(PacketBuffer buffer) {
         identifier.toBinary(buffer);
         buffer.writeByte((byte) streamMode.ordinal());
-    }
-
-    @Override
-    public boolean needsBigBuffer() {
-        return false;
     }
 }

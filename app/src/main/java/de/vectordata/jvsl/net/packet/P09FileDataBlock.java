@@ -1,8 +1,6 @@
 package de.vectordata.jvsl.net.packet;
 
 import de.vectordata.jvsl.net.PacketHandler;
-import de.vectordata.jvsl.net.packet.length.PacketLength;
-import de.vectordata.jvsl.net.packet.length.VariableLength;
 import de.vectordata.jvsl.util.PacketBuffer;
 import de.vectordata.jvsl.util.cscompat.Nullable;
 
