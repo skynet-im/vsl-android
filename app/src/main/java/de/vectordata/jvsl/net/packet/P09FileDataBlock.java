@@ -4,6 +4,7 @@ import de.vectordata.jvsl.net.PacketHandler;
 import de.vectordata.jvsl.net.packet.length.PacketLength;
 import de.vectordata.jvsl.net.packet.length.VariableLength;
 import de.vectordata.jvsl.util.PacketBuffer;
+import de.vectordata.jvsl.util.cscompat.Nullable;
 
 /**
  * Created by Twometer on 09.06.2017.
@@ -28,8 +29,8 @@ public class P09FileDataBlock implements Packet {
     }
 
     @Override
-    public PacketLength getLength() {
-        return new VariableLength();
+    public Nullable<Integer> getConstantLength() {
+        return new Nullable<>(null);
     }
 
     @Override
@@ -52,10 +53,5 @@ public class P09FileDataBlock implements Packet {
     public void writePacket(PacketBuffer buffer) {
         buffer.writeLong(startPosition);
         buffer.writeByteArray(dataBlock, false);
-    }
-
-    @Override
-    public boolean needsBigBuffer() {
-        return true;
     }
 }
