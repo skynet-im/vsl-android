@@ -1,11 +1,24 @@
 package de.vectordata.jvsl.crypt;
 
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+
 /**
  * Created by Daniel Lerch on 07.03.2018.
  * © 2018 Daniel Lerch
  */
 
 public class AesStatic {
+
     /**
      * Executes an AES encryption.
      * @param buffer Plaintext.
@@ -14,7 +27,19 @@ public class AesStatic {
      * @return
      */
     public static byte[] encrypt(byte[] buffer, byte[] key, byte[] iv) {
-        throw new UnsupportedOperationException();
+        if (key.length < 32)
+            throw new IllegalArgumentException("Key has to be 256 bit (was " + key.length + ")");
+
+        SecretKeySpec keySpec = new SecretKeySpec(key, "AES");
+        IvParameterSpec ivSpec = new IvParameterSpec(iv);
+        try {
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+            cipher.init(Cipher.ENCRYPT_MODE, keySpec, ivSpec);
+            return cipher.doFinal(buffer);
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException | BadPaddingException | IllegalBlockSizeException | InvalidKeyException | InvalidAlgorithmParameterException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     /**
@@ -25,7 +50,19 @@ public class AesStatic {
      * @return
      */
     public static byte[] decrypt(byte[] buffer, byte[] key, byte[] iv){
-        throw new UnsupportedOperationException();
+        if (key.length < 32)
+            throw new IllegalArgumentException("Key has to be 256 bit (was " + key.length + ")");
+
+        SecretKeySpec keySpec = new SecretKeySpec(key, "AES");
+        IvParameterSpec ivSpec = new IvParameterSpec(iv);
+        try {
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+            cipher.init(Cipher.DECRYPT_MODE, keySpec, ivSpec);
+            return cipher.doFinal(buffer);
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException | BadPaddingException | IllegalBlockSizeException | InvalidKeyException | InvalidAlgorithmParameterException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     /**
@@ -45,6 +82,9 @@ public class AesStatic {
     }
 
     private static byte[] generateRandom(int length){
-        throw new UnsupportedOperationException();
+        SecureRandom random = new SecureRandom();
+        byte[] bytes = new byte[length];
+        random.nextBytes(bytes);
+        return bytes;
     }
 }
