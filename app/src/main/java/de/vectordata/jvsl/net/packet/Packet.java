@@ -1,26 +1,19 @@
 package de.vectordata.jvsl.net.packet;
 
-
-import de.vectordata.skynet.net.jvsl.packet.handler.PacketHandler;
-import de.vectordata.skynet.net.jvsl.packet.length.PacketLength;
-import de.vectordata.skynet.net.jvsl.util.PacketBuffer;
+import de.vectordata.jvsl.net.PacketHandler;
+import de.vectordata.jvsl.util.PacketBuffer;
+import de.vectordata.jvsl.util.cscompat.Nullable;
 
 /**
- * Created by Twometer on 09.06.2017.
- * (c) 2017 Twometer
+ * Created by Daniel Lerch on 07.03.2018.
+ * © 2018 Daniel Lerch
  */
+
 public interface Packet {
     byte getPacketId();
-
-    PacketLength getLength();
-
+    Nullable<Integer> getConstantLength();
     Packet createNew();
-
     void handlePacket(PacketHandler handler);
-
-    void readPacket(PacketBuffer buffer);
-
-    void writePacket(PacketBuffer buffer);
-
-    boolean needsBigBuffer();
+    void readPacket(PacketBuffer buf);
+    void writePacket(PacketBuffer buf);
 }
