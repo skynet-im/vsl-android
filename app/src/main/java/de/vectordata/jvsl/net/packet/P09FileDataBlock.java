@@ -1,10 +1,9 @@
 package de.vectordata.jvsl.net.packet;
 
-
-import de.vectordata.skynet.net.jvsl.packet.handler.PacketHandler;
-import de.vectordata.skynet.net.jvsl.packet.length.PacketLength;
-import de.vectordata.skynet.net.jvsl.packet.length.VariableLength;
-import de.vectordata.skynet.net.jvsl.util.PacketBuffer;
+import de.vectordata.jvsl.net.PacketHandler;
+import de.vectordata.jvsl.net.packet.length.PacketLength;
+import de.vectordata.jvsl.net.packet.length.VariableLength;
+import de.vectordata.jvsl.util.PacketBuffer;
 
 /**
  * Created by Twometer on 09.06.2017.

@@ -3,6 +3,7 @@ package de.vectordata.jvsl.net.packet;
 import de.vectordata.jvsl.net.PacketHandler;
 import de.vectordata.jvsl.net.packet.length.ConstantLength;
 import de.vectordata.jvsl.net.packet.length.PacketLength;
+import de.vectordata.jvsl.util.PacketBuffer;
 
 /**
  * Created by Twometer on 09.06.2017.
