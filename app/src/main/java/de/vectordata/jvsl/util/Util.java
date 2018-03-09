@@ -121,10 +121,25 @@ public class Util {
             return normalSize;
     }
 
-    // TODO Review this method and add JavaDoc
-    static byte[] reverseBytes(byte[] b) {
-        byte[] reversed = new byte[b.length];
-        System.arraycopy(b, 1, reversed, 1, b.length - 1);
-        return reversed;
+    /**
+     * Reverses the byte array in-place and returns the reversed
+     * byte array
+     *
+     * @param b The byte array to reverse
+     * @return The byte array that was put into the method, but in reverse
+     */
+    public static byte[] reverseBytes(byte[] b) {
+        if (b == null) throw new IllegalArgumentException("Array must not be null");
+        int i = 0;
+        int j = b.length - 1;
+        byte tmp;
+        while (j > i) {
+            tmp = b[j];
+            b[j] = b[i];
+            b[i] = tmp;
+            j--;
+            i++;
+        }
+        return b;
     }
 }
