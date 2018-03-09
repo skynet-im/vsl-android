@@ -39,7 +39,7 @@ public class UInt24 {
     }
 
     public enum Endianness {
-        BigEndian,
-        LittleEndian
+        LittleEndian,
+        BigEndian
     }
 }
