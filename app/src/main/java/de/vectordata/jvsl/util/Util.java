@@ -67,6 +67,14 @@ public class Util {
         return result;
     }
 
+    public static boolean sequenceEqual(byte[] first, byte[] second) {
+        if (first.length != second.length) return false;
+        for (int i = 0; i < first.length; i++) {
+            if (first[i] != second[i]) return false;
+        }
+        return true;
+    }
+
     /**
      * Converts a byte array to a hexadecimal string.
      *
@@ -113,6 +121,7 @@ public class Util {
             return normalSize;
     }
 
+    // TODO Review this method and add JavaDoc
     static byte[] reverseBytes(byte[] b) {
         byte[] reversed = new byte[b.length];
         System.arraycopy(b, 1, reversed, 1, b.length - 1);

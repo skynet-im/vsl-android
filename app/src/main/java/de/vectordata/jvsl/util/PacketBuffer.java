@@ -30,6 +30,20 @@ public class PacketBuffer {
         this(false);
     }
 
+    // TODO Does this return the length of a pre-filled buffer?
+    public int getLength() {
+        return buffer.capacity();
+    }
+
+    // TODO Does this return the remaining size based on the length of a pre-filled buffer?
+    public int getPending() {
+        return buffer.remaining();
+    }
+
+    public int getPosition() {
+        return buffer.position();
+    }
+
     public DateTime readDate() {
         long l = readLong();
         return DateTime.fromBinary(l);
@@ -150,7 +164,7 @@ public class PacketBuffer {
     }
 
     private byte[] readBytes(int amount) {
-        if(buffer.remaining() < amount)
+        if (buffer.remaining() < amount)
             amount = buffer.remaining();
         byte[] buf = new byte[amount];
         buffer.get(buf);

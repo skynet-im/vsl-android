@@ -13,9 +13,9 @@ import javax.crypto.spec.SecretKeySpec;
  * (c) 2018 Twometer
  */
 
-public class Hmac {
+public class HmacStatic {
 
-    private static final String TAG = "Hmac";
+    private static final String TAG = "HmacStatic";
 
     public static byte[] computeHmacSHA256(byte[] input, byte[] key) {
         try {
@@ -24,7 +24,7 @@ public class Hmac {
             mac.init(keySpec);
             return mac.doFinal(input);
         } catch (NoSuchAlgorithmException | InvalidKeyException e) {
-            Log.e(TAG, "Failed to compute Hmac", e);
+            Log.e(TAG, "Failed to compute HmacStatic", e);
         }
         return null;
     }

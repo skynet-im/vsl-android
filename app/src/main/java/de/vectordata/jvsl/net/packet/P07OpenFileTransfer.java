@@ -15,7 +15,7 @@ public class P07OpenFileTransfer implements Packet {
     private Identifier identifier;
     private StreamMode streamMode;
 
-    private P07OpenFileTransfer() {
+    public P07OpenFileTransfer() {
     }
 
     public P07OpenFileTransfer(Identifier identifier, StreamMode streamMode) {

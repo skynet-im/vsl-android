@@ -11,7 +11,17 @@ public class Constants {
      * The installed version as ushort.
      */
     public static final int VERSION_NUMBER = 2;
+    /**
+     * The oldest supported version of VSL.
+     */
+    public static final int COMPATIBILITY_VERSION = 2;
 
+    /**
+     * Returns the product version of the current assembly with the specified precision.
+     *
+     * @param length
+     * @return
+     */
     public static String getProductVersion(int length) {
         throw new UnsupportedOperationException();
     }
