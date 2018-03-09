@@ -56,7 +56,7 @@ public class PacketBuffer {
 
     public void writeString(String str) {
         byte[] arr = str.getBytes();
-        writeByteArray(arr);
+        writeByteArray(arr, true);
     }
 
     public String readString() {
@@ -90,11 +90,6 @@ public class PacketBuffer {
     public void writeByteArray(byte[] arr, boolean sendArrLen) {
         if (sendArrLen)
             writeUInt32(arr.length);
-        writeBytes(arr);
-    }
-
-    public void writeByteArray(byte[] arr) {
-        writeUInt32(arr.length);
         writeBytes(arr);
     }
 

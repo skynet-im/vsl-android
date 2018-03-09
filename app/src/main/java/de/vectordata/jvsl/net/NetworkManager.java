@@ -8,6 +8,7 @@ import de.vectordata.jvsl.net.packet.Packet;
 import de.vectordata.jvsl.util.PacketBuffer;
 import de.vectordata.jvsl.util.Util;
 import de.vectordata.jvsl.util.cscompat.Ref;
+import de.vectordata.jvsl.util.cscompat.UInt24;
 
 /**
  * Created by Daniel Lerch on 07.03.2018.
@@ -39,6 +40,39 @@ public class NetworkManager {
                 break;
             default:
                 throw new EnumConstantNotPresentException(CryptoAlgorithm.class, algorithm.toString());
+        }
+    }
+
+    public void sendPacket(byte id, byte[] content) {
+        sendPacket(CryptoAlgorithm.AES_256_CBC_HMAC_SHA256_MP3, id, content);
+    }
+
+    public void sendPacket(CryptoAlgorithm alg, byte id, byte[] content) {
+        sendPacket(alg, id, true, content);
+    }
+
+    public void sendPacket(Packet packet) {
+        sendPacket(CryptoAlgorithm.AES_256_CBC_HMAC_SHA256_MP3, packet);
+    }
+
+    public void sendPacket(CryptoAlgorithm alg, Packet packet) {
+        byte[] content;
+        PacketBuffer buf = new PacketBuffer();
+        packet.writePacket(buf);
+        content = buf.toArray();
+        sendPacket(alg, packet.getPacketId(), !packet.getConstantLength().hasValue(), content);
+    }
+
+    public void sendPacket(CryptoAlgorithm alg, byte realId, boolean size, byte[] content) {
+        switch (alg) {
+            case NONE:
+                sendPacket_Plaintext(realId, size, content);
+            case RSA_2048_OAEP:
+                sendPacket_RSA_2048_OAEP(realId, size, content);
+            case AES_256_CBC_HMAC_SHA256_MP3:
+                sendPacket_AES_256_CBC_HMAC_SHA256_MP3(realId, size, content);
+            default:
+                throw new IllegalArgumentException();
         }
     }
 
@@ -75,7 +109,7 @@ public class NetworkManager {
     }
 
     private void receivePacket_AES_256_CBC_HMAC_SHA_256_MP3() {
-        int blocks = 0; // TODO Implement reading from UInt24
+        int blocks = UInt24.fromByteArray(parent.getChannel().receive(3), UInt24.Endianness.LittleEndian).getValue();
         byte[] hmac = parent.getChannel().receive(32);
         byte[] cipherblock = parent.getChannel().receive((blocks + 2) * 16);
         if (!Util.sequenceEqual(hmac, HmacStatic.computeHmacSHA256(cipherblock, hmacKey)))
@@ -100,6 +134,45 @@ public class NetworkManager {
             else
                 ; // TODO Implement VSLClient.OnPacketReceived()
         }
+    }
+
+    private void sendPacket_Plaintext(byte realId, boolean size, byte[] content) {
+        PacketBuffer pbuf = new PacketBuffer();
+        pbuf.writeByte((byte) CryptoAlgorithm.NONE.ordinal());
+        pbuf.writeByte(realId);
+        if (size) pbuf.writeUInt32(content.length);
+        pbuf.writeByteArray(content, false);
+        parent.getChannel().sendAsync(pbuf.toArray());
+    }
+
+    private void sendPacket_RSA_2048_OAEP(byte realId, boolean size, byte[] content) {
+        PacketBuffer pbuf = new PacketBuffer();
+        pbuf.writeByte(realId);
+        if (size) pbuf.writeUInt32(content.length);
+        pbuf.writeByteArray(content, false);
+        byte[] ciphertext = RsaStatic.encryptBlock(pbuf.toArray(), rsaKey);
+        byte[] buf = new byte[1 + ciphertext.length];
+        buf[0] = (byte) CryptoAlgorithm.RSA_2048_OAEP.ordinal();
+        System.arraycopy(ciphertext, 0, buf, 1, ciphertext.length);
+        parent.getChannel().sendAsync(buf);
+    }
+
+    private void sendPacket_AES_256_CBC_HMAC_SHA256_MP3(byte realId, boolean size, byte[] content) {
+        PacketBuffer pbuf = new PacketBuffer();
+        pbuf.writeByte(realId);
+        if (size) pbuf.writeUInt32(content.length);
+        pbuf.writeByteArray(content, false);
+        byte[] iv = AesStatic.generateIV();
+        byte[] ciphertext = AesStatic.encrypt(pbuf.toArray(), aesKey, iv);
+        byte[] blocks = new UInt24(ciphertext.length / 16 - 1).toByteArray(UInt24.Endianness.LittleEndian);
+        byte[] cipherblock = Util.concatBytes(iv, ciphertext);
+        byte[] hmac = HmacStatic.computeHmacSHA256(cipherblock, hmacKey);
+        PacketBuffer sbuf = new PacketBuffer();
+        sbuf.writeByte((byte) CryptoAlgorithm.AES_256_CBC_HMAC_SHA256_MP3.ordinal());
+        sbuf.writeByteArray(blocks, false);
+        sbuf.writeByteArray(hmac, false);
+        sbuf.writeByteArray(cipherblock, false);
+        parent.getChannel().sendAsync(sbuf.toArray());
     }
 
     public byte[] getAesKey() {

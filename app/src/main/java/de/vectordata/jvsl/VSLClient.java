@@ -30,4 +30,15 @@ public class VSLClient {
     public PacketHandler getHandler() {
         return handler;
     }
+
+    public void Connect(String host, int port, String serverKey) {
+        // TODO Connect TCP client
+        channel = new NetworkChannel();
+        manager = new NetworkManager(this, serverKey);
+        handler = new PacketHandler();
+        // TODO Start threads
+        // TODO Send handshake packet
+        // TODO Generate session keys
+        // TODO Send key exchange packet
+    }
 }
