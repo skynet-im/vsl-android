@@ -16,7 +16,7 @@ public class P08FileHeader implements Packet {
     private long attributes;
     private DateTime creationTime;
     private DateTime lastAccessTime;
-    public DateTime lastWriteTime;
+    private DateTime lastWriteTime;
     private byte[] thumbnail;
     private byte[] sha256;
 
@@ -74,7 +74,7 @@ public class P08FileHeader implements Packet {
         buffer.writeDate(creationTime);
         buffer.writeDate(lastAccessTime);
         buffer.writeDate(lastWriteTime);
-        buffer.writeByteArray(thumbnail);
+        buffer.writeByteArray(thumbnail, true);
         buffer.writeByteArray(sha256, false);
     }
 

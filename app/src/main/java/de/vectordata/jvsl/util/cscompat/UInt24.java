@@ -21,7 +21,7 @@ public class UInt24 {
 
     public byte[] toByteArray(Endianness endianness) {
         byte[] array = new byte[]{(byte) value, (byte) (value >> 8), (byte) (value >> 16)};
-        if (endianness != Endianness.BigEndian)
+        if (endianness != Endianness.LittleEndian)
             Util.reverseBytes(array);
         return array;
     }
@@ -29,11 +29,11 @@ public class UInt24 {
     public static UInt24 fromByteArray(byte[] b, Endianness endianness) {
         if (b.length != 3)
             throw new IllegalArgumentException("UInt24 can only be created of a byte array with length of 3");
-        if (endianness != Endianness.BigEndian)
+        if (endianness != Endianness.LittleEndian)
             Util.reverseBytes(b);
-        int v1 = endianness == Endianness.BigEndian ? 0x000000FF : 0x00FF0000;
+        int v1 = endianness == Endianness.LittleEndian ? 0x000000FF : 0x00FF0000;
         int v2 = 0x0000FF00;
-        int v3 = endianness == Endianness.BigEndian ? 0x00FF0000 : 0x000000FF;
+        int v3 = endianness == Endianness.LittleEndian ? 0x00FF0000 : 0x000000FF;
         int value = ((int) (b[0]) & v1) | (((int) (b[1]) << 8) & v2) | (((int) (b[2]) << 16) & v3);
         return new UInt24(value);
     }

@@ -1,7 +1,7 @@
 package de.vectordata.jvsl.net;
 
 
-import android.content.Context;
+import android.util.Log;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,8 +10,7 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import de.vectordata.skynet.net.jvsl.VSLClient;
-import de.vectordata.skynet.net.jvsl.util.CancellableThreadSleeper;
+import de.vectordata.jvsl.VSLClient;
 
 /**
  * Created by Twometer on 09.06.2017.
@@ -19,32 +18,27 @@ import de.vectordata.skynet.net.jvsl.util.CancellableThreadSleeper;
  */
 public class NetworkChannel {
 
+    private static final String TAG = "NetworkChannel";
+
+    private VSLClient parent;
+    private NetworkManager networkManager;
+
     private Socket socket;
     private InputStream inputStream;
     private OutputStream outputStream;
 
-    private WakeLockHolder sendingWakeLockHolder;
-    private WakeLockHolder receivingWakeLockHolder;
-
-    private NetworkManager networkManager;
-
-    private ChannelMode mode = ChannelMode.Realtime;
+    private boolean shouldExit = false;
     private final ConcurrentLinkedQueue<byte[]> sendCache = new ConcurrentLinkedQueue<>();
 
-    private ShutdownState shutdownState;
-
-    private boolean disconnected;
-    private long delay;
-
-    private final CancellableThreadSleeper receivingThreadSleeper = new CancellableThreadSleeper();
+    private final Object receivingWaitHandle = new Object();
     private final Object sendingWaitHandle = new Object();
 
-    public ConnectionResult connect(Context context, String host, int port, VSLClient parent, String publicKey) {
+    public NetworkChannel(VSLClient parent) {
+        this.parent = parent;
+    }
+
+    public boolean connect(String host, int port, String publicKey) {
         try {
-            sendingWakeLockHolder = new WakeLockHolder(context);
-            sendingWakeLockHolder.initialize(WakeLockHolder.Mode.Sending);
-            receivingWakeLockHolder = new WakeLockHolder(context);
-            receivingWakeLockHolder.initialize(WakeLockHolder.Mode.Receiving);
             socket = new Socket();
             socket.setKeepAlive(true);
             socket.setSoLinger(true, 0);
@@ -53,95 +47,73 @@ public class NetworkChannel {
             socket.connect(new InetSocketAddress(host, port), 10000);
             inputStream = socket.getInputStream();
             outputStream = socket.getOutputStream();
-            networkManager = new NetworkManager(receivingWakeLockHolder, this, parent, publicKey);
-            shutdownState = new ShutdownState();
-            disconnected = false;
-            runThreads();
-            return new ConnectionResult();
+            networkManager = new NetworkManager(parent, publicKey);
+            startThreads();
+            return true;
         } catch (IOException e) {
-            return new ConnectionResult(e);
+            Log.e(TAG, "Failed to connect to the server", e);
+            return false;
         }
     }
 
-    public boolean isConnected() {
-        return !disconnected && socket != null && shutdownState != null && !shutdownState.shouldShutDown() && networkManager != null;
+    private void startThreads() {
+        startSenderThread();
+        startReceiverThread();
     }
 
-    private void runThreads() {
-        runSenderThread();
-        runReceiverThread();
-    }
-
-    private void runSenderThread() {
+    private void startSenderThread() {
         (new Thread(new Runnable() {
             @Override
             public void run() {
-                while (!shutdownState.shouldShutDown()) {
-                    boolean successfullySent = false;
+                while (!shouldExit) {
                     try {
                         synchronized (sendingWaitHandle) {
                             while (sendCache.isEmpty())
                                 sendingWaitHandle.wait();
                             byte[] array = sendCache.poll();
-                            sendingWakeLockHolder.acquire();
                             outputStream.write(array);
-                            successfullySent = true;
                         }
                     } catch (IOException | InterruptedException e) {
-                        shutdownState.shutdown(e);
-                        successfullySent = false;
-                    } finally {
-                        if (successfullySent)
-                            networkManager.parent.getPacketCallback().onPacketSuccess();
-                        sendingWakeLockHolder.release();
+                        shouldExit = true;
+                        Log.e(TAG, "Failed to send packet", e);
                     }
                 }
-                onConnectionLost();
+                handleDisconnect();
             }
         })).start();
     }
 
-    private void runReceiverThread() {
+    private void startReceiverThread() {
         (new Thread(new Runnable() {
             @Override
             public void run() {
-                while (!shutdownState.shouldShutDown()) {
+                while (!shouldExit) {
                     try {
-                        if (inputStream.available() == -1)
-                            throw new IOException("Connection lost");
-                        networkManager.receiveData();
-                        networkManager.parent.getPacketCallback().updateDelay();
-                        if (delay > 0)
-                            if (mode == ChannelMode.Background)
-                                receivingThreadSleeper.sleep(50 + delay);
-                            else if (mode == ChannelMode.EnergySaver)
-                                receivingThreadSleeper.sleep(150 + delay);
-                            else if (mode == ChannelMode.Realtime)
-                                Thread.sleep(20);
-                    } catch (Exception e) {
-                        shutdownState.shutdown(e);
-                        break;
+                        synchronized (receivingWaitHandle) {
+                            if (inputStream.available() == -1)
+                                throw new IOException("Connection closed: No more data");
+                            networkManager.receiveData();
+                            receivingWaitHandle.wait(500);
+                        }
+                    } catch (IOException | InterruptedException e) {
+                        shouldExit = true;
+                        Log.e(TAG, "Failed to receive", e);
                     }
                 }
-                onConnectionLost();
+                handleDisconnect();
             }
         })).start();
     }
 
-    private void onConnectionLost() {
-        if (!disconnected) {
-            disconnected = true;
-            sendingWakeLockHolder.release();
-            receivingWakeLockHolder.release();
-            sendCache.clear();
-            close();
-            networkManager.parent.getPacketCallback().connectionLost(shutdownState.getCause());
-        }
+    private void handleDisconnect() {
+        sendCache.clear();
+        this.close();
+        // TODO Raise connectionLost event
     }
 
     void sendAsync(byte[] array) {
         sendCache.add(array);
-        wakeUp(true);
+        wakeUp();
     }
 
     byte receiveByte() {
@@ -159,40 +131,25 @@ public class NetworkChannel {
 
             while (total < len) {
                 int received = inputStream.read(bytes, total, len - total);
-                if (received == -1) throw new IOException("Connection lost");
+                if (received == -1) throw new IOException("Connection closed: No more data");
                 total += received;
             }
 
-            if (total != len) {
-                throw new IOException("Unrecoverable buffer error");
-            }
+            if (total != len)
+                throw new IOException("Buffer length and received data length mismatch.");
             return bytes;
 
         } catch (IOException e) {
-            shutdownState.shutdown(e);
+            shouldExit = true;
+            Log.e(TAG, "Failed to receive", e);
         }
         return null;
     }
 
-    public void setDelay(long delay) {
-        this.delay = delay;
-    }
-
-    public ChannelMode getMode() {
-        return mode;
-    }
-
-    public void setMode(ChannelMode mode) {
-        this.mode = mode;
-    }
-
-    public NetworkManager getNetworkManager() {
-        return networkManager;
-    }
-
-    public void wakeUp(boolean sendOnly) {
-        if (!sendOnly)
-            receivingThreadSleeper.cancel();
+    public void wakeUp() {
+        synchronized (receivingWaitHandle) {
+            receivingWaitHandle.notifyAll();
+        }
         synchronized (sendingWaitHandle) {
             sendingWaitHandle.notifyAll();
         }

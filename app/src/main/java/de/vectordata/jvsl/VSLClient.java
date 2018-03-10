@@ -31,9 +31,9 @@ public class VSLClient {
         return handler;
     }
 
-    public void Connect(String host, int port, String serverKey) {
+    public void connect(String host, int port, String serverKey) {
         // TODO Connect TCP client
-        channel = new NetworkChannel();
+        channel = new NetworkChannel(this);
         manager = new NetworkManager(this, serverKey);
         handler = new PacketHandler();
         // TODO Start threads
