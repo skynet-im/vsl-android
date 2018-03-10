@@ -232,4 +232,10 @@ public class DateTime {
         GregorianCalendar calendar = (GregorianCalendar) GregorianCalendar.getInstance();
         return new DateTime(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.DAY_OF_MONTH), calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), calendar.get(Calendar.SECOND));
     }
+
+    public static DateTime fromMillis(long millis) {
+        GregorianCalendar calendar = (GregorianCalendar) GregorianCalendar.getInstance();
+        calendar.setTime(new Date(millis));
+        return new DateTime(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.DAY_OF_MONTH), calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), calendar.get(Calendar.SECOND));
+    }
 }

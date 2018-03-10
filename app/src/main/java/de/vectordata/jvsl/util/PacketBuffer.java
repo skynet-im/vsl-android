@@ -31,17 +31,23 @@ public class PacketBuffer {
     }
 
     // TODO Does this return the length of a pre-filled buffer?
+    // TODO Yes it does
     public int getLength() {
         return buffer.capacity();
     }
 
     // TODO Does this return the remaining size based on the length of a pre-filled buffer?
+    // TODO Yes it does, see my implementation of readToEnd()
     public int getPending() {
         return buffer.remaining();
     }
 
     public int getPosition() {
         return buffer.position();
+    }
+
+    public void setPosition(int pos) {
+        buffer.position(pos);
     }
 
     public DateTime readDate() {
