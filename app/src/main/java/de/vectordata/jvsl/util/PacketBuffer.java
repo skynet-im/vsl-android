@@ -45,13 +45,13 @@ public class PacketBuffer {
     }
 
     public DateTime readDate() {
-        long l = readLong();
+        long l = readInt64();
         return DateTime.fromBinary(l);
     }
 
     public void writeDate(DateTime date) {
         long l = date.toBinary();
-        writeLong(l);
+        writeInt64(l);
     }
 
     public void writeString(String str) {
@@ -141,7 +141,7 @@ public class PacketBuffer {
         });
     }
 
-    public long readLong() {
+    public long readInt64() {
         byte[] b = readBytes(8);
         return ((((long) b[0])) & 0x00000000000000FFL)
                 | ((((long) b[1]) << 8) & 0x000000000000FF00L)
@@ -153,7 +153,7 @@ public class PacketBuffer {
                 | ((((long) b[7]) << 56) & 0xFF00000000000000L);
     }
 
-    public void writeLong(long l) {
+    public void writeInt64(long l) {
         byte[] b = new byte[]{(byte) (l), (byte) (l >> 8), (byte) (l >> 16), (byte) (l >> 24), (byte) (l >> 32), (byte) (l >> 40), (byte) (l >> 48), (byte) (l >> 56)};
         writeBytes(b);
     }

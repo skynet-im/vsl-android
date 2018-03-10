@@ -8,7 +8,7 @@ import de.vectordata.jvsl.net.packet.Packet;
 import de.vectordata.jvsl.util.PacketBuffer;
 import de.vectordata.jvsl.util.Util;
 import de.vectordata.jvsl.util.cscompat.Ref;
-import de.vectordata.jvsl.util.cscompat.UInt24;
+import de.vectordata.jvsl.util.UInt24;
 
 /**
  * Created by Daniel Lerch on 07.03.2018.
@@ -34,9 +34,11 @@ public class NetworkManager {
                 receivePacket_Plaintext();
                 break;
             case RSA_2048_OAEP:
+                receivePacket_RSA_2048_OAEP();
                 break;
             //case AES_256_CBC_SP:
             case AES_256_CBC_HMAC_SHA256_MP3:
+                receivePacket_AES_256_CBC_HMAC_SHA_256_MP3();
                 break;
             default:
                 throw new EnumConstantNotPresentException(CryptoAlgorithm.class, algorithm.toString());

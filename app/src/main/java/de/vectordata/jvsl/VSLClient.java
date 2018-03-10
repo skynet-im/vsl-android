@@ -1,5 +1,6 @@
 package de.vectordata.jvsl;
 
+import de.vectordata.jvsl.fileTransfer.FTSocket;
 import de.vectordata.jvsl.net.NetworkChannel;
 import de.vectordata.jvsl.net.NetworkManager;
 import de.vectordata.jvsl.net.PacketHandler;
@@ -14,6 +15,7 @@ public class VSLClient {
     private NetworkChannel channel;
     private NetworkManager manager;
     private PacketHandler handler;
+    private FTSocket fileTransfer;
 
     public VSLClient(int latestProduct, int oldestProduct) {
 
@@ -31,11 +33,15 @@ public class VSLClient {
         return handler;
     }
 
+    public FTSocket getFileTransfer() {
+        return fileTransfer;
+    }
+
     public void connect(String host, int port, String serverKey) {
         // TODO Connect TCP client
         channel = new NetworkChannel(this);
         manager = new NetworkManager(this, serverKey);
-        handler = new PacketHandler();
+        handler = new PacketHandler(this);
         // TODO Start threads
         // TODO Send handshake packet
         // TODO Generate session keys

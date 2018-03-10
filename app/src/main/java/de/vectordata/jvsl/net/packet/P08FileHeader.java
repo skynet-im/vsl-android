@@ -57,7 +57,7 @@ public class P08FileHeader implements Packet {
     @Override
     public void readPacket(PacketBuffer buffer) {
         name = buffer.readString();
-        length = buffer.readLong();
+        length = buffer.readInt64();
         attributes = buffer.readUInt32();
         creationTime = buffer.readDate();
         lastAccessTime = buffer.readDate();
@@ -69,7 +69,7 @@ public class P08FileHeader implements Packet {
     @Override
     public void writePacket(PacketBuffer buffer) {
         buffer.writeString(name);
-        buffer.writeLong(length);
+        buffer.writeInt64(length);
         buffer.writeUInt32(attributes);
         buffer.writeDate(creationTime);
         buffer.writeDate(lastAccessTime);

@@ -31,8 +31,8 @@ public class RsaStatic {
     /**
      * Encrypts one block using RSA with OAEP.
      *
-     * @param plaintext Data to encrypt (max. 214 bytes)
-     * @param key
+     * @param plaintext Data to encrypt (max. 214 bytes).
+     * @param key       Public key as xml string.
      * @return
      */
     public static byte[] encryptBlock(byte[] plaintext, String key) {
@@ -59,7 +59,7 @@ public class RsaStatic {
      * Encrypts data using RSA with OAEP.
      *
      * @param plaintext Data to encrypt with any length.
-     * @param key
+     * @param key       Public key as xml string.
      * @return
      */
     public static byte[] encrypt(byte[] plaintext, String key) {
@@ -78,6 +78,14 @@ public class RsaStatic {
     }
 
     // TODO Comments
+
+    /**
+     * Decrypts one block using RSA with OAEP.
+     *
+     * @param ciphertext Data to decrypt as a single 256 byte block.
+     * @param key        Private key as xml string.
+     * @return
+     */
     public static byte[] decryptBlock(byte[] ciphertext, String key) {
         RsaParams params = RsaParams.fromXml(key, true);
         try {
@@ -98,7 +106,13 @@ public class RsaStatic {
         return null;
     }
 
-    // TODO Comments
+    /**
+     * Decrypts data using RSA with OAEP.
+     *
+     * @param ciphertext Data to decrypt in multiple 256 byte blocks.
+     * @param key        Private key as xml string.
+     * @return
+     */
     public static byte[] decrypt(byte[] ciphertext, String key) {
         if (ciphertext == null) throw new IllegalArgumentException("Plaintext must not be null");
         if (key == null) throw new IllegalArgumentException("Key must not be null");

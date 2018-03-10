@@ -1,6 +1,7 @@
 package de.vectordata.jvsl.net.packet;
 
 import de.vectordata.jvsl.net.PacketHandler;
+import de.vectordata.jvsl.net.packet.util.KeepAliveRole;
 import de.vectordata.jvsl.util.PacketBuffer;
 import de.vectordata.jvsl.util.cscompat.Nullable;
 
@@ -9,6 +10,20 @@ import de.vectordata.jvsl.util.cscompat.Nullable;
  * (c) 2017 Twometer
  */
 public class P05KeepAlive implements Packet {
+
+    private KeepAliveRole role;
+
+    public P05KeepAlive() {
+    }
+
+    public P05KeepAlive(KeepAliveRole role) {
+        this.role = role;
+    }
+
+    public KeepAliveRole getRole() {
+        return role;
+    }
+
     @Override
     public byte getPacketId() {
         return 5;
@@ -21,7 +36,7 @@ public class P05KeepAlive implements Packet {
 
     @Override
     public Packet createNew() {
-        return new P05KeepAlive();
+        return new P05KeepAlive(role);
     }
 
     @Override
@@ -31,12 +46,12 @@ public class P05KeepAlive implements Packet {
 
     @Override
     public void readPacket(PacketBuffer buffer) {
-
+        role = KeepAliveRole.values()[buffer.readByte()];
     }
 
     @Override
     public void writePacket(PacketBuffer buffer) {
-
+        buffer.writeByte((byte) role.ordinal());
     }
 
 }

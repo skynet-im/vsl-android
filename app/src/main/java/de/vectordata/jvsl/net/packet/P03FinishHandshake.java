@@ -2,7 +2,7 @@ package de.vectordata.jvsl.net.packet;
 
 
 import de.vectordata.jvsl.net.PacketHandler;
-import de.vectordata.jvsl.net.packet.util.ConnectionType;
+import de.vectordata.jvsl.net.packet.util.ConnectionState;
 import de.vectordata.jvsl.util.PacketBuffer;
 import de.vectordata.jvsl.util.cscompat.Nullable;
 
@@ -12,7 +12,7 @@ import de.vectordata.jvsl.util.cscompat.Nullable;
  */
 public class P03FinishHandshake implements Packet {
 
-    public ConnectionType connectionType;
+    public ConnectionState connectionState;
     private String address;
     private int port;
 
@@ -38,8 +38,8 @@ public class P03FinishHandshake implements Packet {
 
     @Override
     public void readPacket(PacketBuffer buffer) {
-        connectionType = ConnectionType.values()[buffer.readByte()];
-        if (connectionType == ConnectionType.Redirect) {
+        connectionState = ConnectionState.values()[buffer.readByte()];
+        if (connectionState == ConnectionState.Redirect) {
             address = buffer.readString();
             port = buffer.readUInt16();
         }
@@ -47,8 +47,8 @@ public class P03FinishHandshake implements Packet {
 
     @Override
     public void writePacket(PacketBuffer buffer) {
-        buffer.writeByte((byte) connectionType.ordinal());
-        if (connectionType == ConnectionType.Redirect) {
+        buffer.writeByte((byte) connectionState.ordinal());
+        if (connectionState == ConnectionState.Redirect) {
             buffer.writeString(address);
             buffer.writeUInt16(port);
         }

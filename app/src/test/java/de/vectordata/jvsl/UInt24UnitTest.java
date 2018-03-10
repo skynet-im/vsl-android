@@ -2,7 +2,7 @@ package de.vectordata.jvsl;
 
 import org.junit.Test;
 
-import de.vectordata.jvsl.util.cscompat.UInt24;
+import de.vectordata.jvsl.util.UInt24;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;

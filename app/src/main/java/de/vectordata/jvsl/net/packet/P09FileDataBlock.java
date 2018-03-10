@@ -43,13 +43,13 @@ public class P09FileDataBlock implements Packet {
 
     @Override
     public void readPacket(PacketBuffer buffer) {
-        startPosition = buffer.readLong();
+        startPosition = buffer.readInt64();
         dataBlock = buffer.readToEnd();
     }
 
     @Override
     public void writePacket(PacketBuffer buffer) {
-        buffer.writeLong(startPosition);
+        buffer.writeInt64(startPosition);
         buffer.writeByteArray(dataBlock, false);
     }
 }

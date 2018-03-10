@@ -1,6 +1,4 @@
-package de.vectordata.jvsl.util.cscompat;
-
-import de.vectordata.jvsl.util.Util;
+package de.vectordata.jvsl.util;
 
 /**
  * Created by Twometer on 09.03.2018.
