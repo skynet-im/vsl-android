@@ -54,4 +54,12 @@ public class P07OpenFileTransfer implements Packet {
         identifier.toBinary(buffer);
         buffer.writeByte((byte) streamMode.ordinal());
     }
+
+    public Identifier getIdentifier() {
+        return identifier;
+    }
+
+    public StreamMode getStreamMode() {
+        return streamMode;
+    }
 }

@@ -11,7 +11,9 @@ import de.vectordata.jvsl.crypt.ContentAlgorithm;
 import de.vectordata.jvsl.net.packet.P06Accepted;
 import de.vectordata.jvsl.net.packet.P07OpenFileTransfer;
 import de.vectordata.jvsl.net.packet.P08FileHeader;
+import de.vectordata.jvsl.net.packet.P09FileDataBlock;
 import de.vectordata.jvsl.net.packet.util.ProblemCategory;
+import de.vectordata.jvsl.util.Util;
 
 /**
  * Created by Daniel Lerch on 10.03.2018.
@@ -88,7 +90,7 @@ public class FTSocket {
         parent.getManager().sendPacket(new P06Accepted(true, (byte) 8, ProblemCategory.None));
     }
 
-    public void onPacketReceived(P06Accepted packet) throws StreamCorruptedException, FileNotFoundException {
+    public void onPacketReceived(P06Accepted packet) throws IOException {
         if (currentItem == null) throw new IllegalStateException("Invalid packet");
         if (!packet.accepted && packet.relatedPacket == 7) {
             currentItem.closeStream(false);
@@ -112,9 +114,54 @@ public class FTSocket {
         }
     }
 
-    private void sendBlock() {
+    private void sendBlock() throws IOException {
         byte[] buffer = new byte[262144];
-        currentItem.getPosition();
-        // TODO Ich bin Mittagessen ;-)
+        long pos = currentItem.getPosition();
+        int count = currentItem.getHashInputStream().read(buffer, 0, buffer.length);
+        parent.getManager().sendPacket(new P09FileDataBlock(pos, Util.takeBytes(buffer, count, 0)));
+        currentItem.onProgress();
+        if (count < buffer.length)
+            currentItem.closeStream(true);
+    }
+
+    public void onPacketReceived(P07OpenFileTransfer packet) {
+        if (currentItem == null) {
+            FTEventArgs e = new FTEventArgs(packet.getIdentifier(), packet.getStreamMode());
+            currentItem = e;
+            if (listener != null) listener.onRequest(this, e);
+        } else {
+            throw new IllegalStateException("Can't run two file transfers at the same time");
+        }
+    }
+
+    public void onPacketReceived(P08FileHeader packet) {
+        if (currentItem == null)
+            throw new UnsupportedOperationException("Cannot resume file transfer for the received file header.");
+        if (currentItem.getMode() != StreamMode.GET_HEADER && currentItem.getMode() != StreamMode.GET_FILE)
+            throw new UnsupportedOperationException("The running file transfer is not supposed to receive a file header.");
+        if (currentItem.getFileMeta() != null)
+            throw new IllegalStateException("Already received file header");
+        currentItem.setFileMeta(new FileMeta(packet.binaryData, (short) parent.getConnectionVersion()));
+        currentItem.onFileMetaTransferred();
+        if (currentItem.getMode() == StreamMode.GET_HEADER) {
+            currentItem.onFinished();
+            parent.getManager().sendPacket(new P06Accepted(true, (byte) 8, ProblemCategory.None));
+        }
+    }
+
+    public void onPacketReceived(P09FileDataBlock packet) throws IOException {
+        if (currentItem == null)
+            throw new UnsupportedOperationException("Cannot resume file transfer for the received file data block.");
+        if (currentItem.getMode() != StreamMode.GET_HEADER && currentItem.getMode() != StreamMode.GET_FILE)
+            throw new UnsupportedOperationException("The running file transfer is not supposed to receive a file data block.");
+        if (currentItem.getHashOutputStream() == null && currentItem.getHashInputStream() == null)
+            throw new IllegalStateException("Stream not initialized");
+        currentItem.getHashOutputStream().write(packet.dataBlock, 0, packet.dataBlock.length);
+        currentItem.onProgress();
+        if (currentItem.getHashOutputStream().getPosition() == currentItem.getFileMeta().getLength()) {
+            currentItem.closeStream(true);
+            currentItem = null;
+        }
+        parent.getManager().sendPacket(new P06Accepted(true, (byte) 9, ProblemCategory.None));
     }
 }
