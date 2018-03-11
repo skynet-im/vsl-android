@@ -21,7 +21,7 @@ public class VSLClient {
     private NetworkManager manager;
     private PacketHandler handler;
     private FTSocket fileTransfer;
-    private boolean connectionAvailabe;
+    private boolean connectionAvailable;
     private int connectionVersion;
     private int latestProduct;
     private int oldestProduct;
@@ -78,7 +78,7 @@ public class VSLClient {
 
     public void onConnectionEstablished(int connectionVersion) {
         this.connectionVersion = connectionVersion;
-        connectionAvailabe = true;
+        connectionAvailable = true;
         if (listener != null) listener.onConnectionEstablished();
     }
 
@@ -87,7 +87,7 @@ public class VSLClient {
     }
 
     public void sendPacket(byte id, byte[] content) {
-        if (!connectionAvailabe)
+        if (!connectionAvailable)
             throw new IllegalStateException("You cannot send a packet without a secure connection");
         manager.sendPacket(invertId(id), content);
     }

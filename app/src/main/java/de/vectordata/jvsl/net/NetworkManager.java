@@ -1,5 +1,7 @@
 package de.vectordata.jvsl.net;
 
+import java.io.IOException;
+
 import de.vectordata.jvsl.VSLClient;
 import de.vectordata.jvsl.crypt.AesStatic;
 import de.vectordata.jvsl.crypt.HmacStatic;
@@ -27,7 +29,7 @@ public class NetworkManager {
         this.rsaKey = rsaKey;
     }
 
-    public void receiveData() {
+    public void receiveData() throws IOException {
         CryptoAlgorithm algorithm = CryptoAlgorithm.values()[parent.getChannel().receiveByte()];
         switch (algorithm) {
             case NONE:
@@ -78,7 +80,7 @@ public class NetworkManager {
         }
     }
 
-    private void receivePacket_Plaintext() {
+    private void receivePacket_Plaintext() throws IOException {
         byte id = parent.getChannel().receiveByte();
         Ref<Packet> packetRef = new Ref<>();
         if (!parent.getHandler().tryGetPacket(id, packetRef))
@@ -92,7 +94,7 @@ public class NetworkManager {
         parent.getHandler().handleInternalPacket(id, parent.getChannel().receive(length), CryptoAlgorithm.NONE);
     }
 
-    private void receivePacket_RSA_2048_OAEP() {
+    private void receivePacket_RSA_2048_OAEP() throws IOException {
         byte[] ciphertext = parent.getChannel().receive(256);
         PacketBuffer plaintext = new PacketBuffer(RsaStatic.decryptBlock(ciphertext, rsaKey));
         byte id = plaintext.readByte();
@@ -110,7 +112,7 @@ public class NetworkManager {
         parent.getHandler().handleInternalPacket(id, plaintext.readByteArray(length), CryptoAlgorithm.RSA_2048_OAEP);
     }
 
-    private void receivePacket_AES_256_CBC_HMAC_SHA_256_MP3() {
+    private void receivePacket_AES_256_CBC_HMAC_SHA_256_MP3() throws IOException {
         int blocks = UInt24.fromByteArray(parent.getChannel().receive(3), UInt24.Endianness.LittleEndian).getValue();
         byte[] hmac = parent.getChannel().receive(32);
         byte[] cipherblock = parent.getChannel().receive((blocks + 2) * 16);

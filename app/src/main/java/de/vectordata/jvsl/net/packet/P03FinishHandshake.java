@@ -1,6 +1,8 @@
 package de.vectordata.jvsl.net.packet;
 
 
+import java.io.IOException;
+
 import de.vectordata.jvsl.net.PacketHandler;
 import de.vectordata.jvsl.net.packet.util.ConnectionState;
 import de.vectordata.jvsl.util.PacketBuffer;
@@ -34,7 +36,7 @@ public class P03FinishHandshake implements Packet {
     }
 
     @Override
-    public void handlePacket(PacketHandler handler) {
+    public void handlePacket(PacketHandler handler) throws IOException {
         handler.handleP03FinishHandshake(this);
     }
 

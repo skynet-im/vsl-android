@@ -1,5 +1,7 @@
 package de.vectordata.jvsl.net.packet;
 
+import java.io.IOException;
+
 import de.vectordata.jvsl.net.PacketHandler;
 import de.vectordata.jvsl.util.PacketBuffer;
 import de.vectordata.jvsl.util.cscompat.Nullable;
@@ -13,7 +15,7 @@ public interface Packet {
     byte getPacketId();
     Nullable<Integer> getConstantLength();
     Packet createNew();
-    void handlePacket(PacketHandler handler);
+    void handlePacket(PacketHandler handler) throws IOException;
     void readPacket(PacketBuffer buf);
     void writePacket(PacketBuffer buf);
 }

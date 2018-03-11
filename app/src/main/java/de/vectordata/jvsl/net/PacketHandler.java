@@ -63,7 +63,7 @@ public class PacketHandler {
         return packet.get() != null;
     }
 
-    public void handleInternalPacket(byte id, byte[] content, CryptoAlgorithm alg) {
+    public void handleInternalPacket(byte id, byte[] content, CryptoAlgorithm alg) throws IOException {
         if (id >= registeredPackets.length)
             throw new IllegalArgumentException("Unknown packet");
         PacketRule rule = registeredPackets[id];
@@ -116,7 +116,7 @@ public class PacketHandler {
             parent.getManager().sendPacket(new P05KeepAlive(KeepAliveRole.RESPONSE));
     }
 
-    public void handleP06Accepted(P06Accepted p06Accepted) {
+    public void handleP06Accepted(P06Accepted p06Accepted) throws IOException {
         if (p06Accepted.relatedPacket > 5 && p06Accepted.relatedPacket < 10)
             parent.getFileTransfer().onPacketReceived(p06Accepted);
         else
@@ -131,7 +131,7 @@ public class PacketHandler {
         parent.getFileTransfer().onPacketReceived(p08FileHeader);
     }
 
-    public void handleP09FileDataBlock(P09FileDataBlock p09FileDataBlock) {
+    public void handleP09FileDataBlock(P09FileDataBlock p09FileDataBlock) throws IOException {
         parent.getFileTransfer().onPacketReceived(p09FileDataBlock);
     }
 }

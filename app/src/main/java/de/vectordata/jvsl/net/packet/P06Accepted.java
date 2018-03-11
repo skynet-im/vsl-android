@@ -1,6 +1,8 @@
 package de.vectordata.jvsl.net.packet;
 
 
+import java.io.IOException;
+
 import de.vectordata.jvsl.net.PacketHandler;
 import de.vectordata.jvsl.net.packet.util.ProblemCategory;
 import de.vectordata.jvsl.util.PacketBuffer;
@@ -41,7 +43,7 @@ public class P06Accepted implements Packet {
     }
 
     @Override
-    public void handlePacket(PacketHandler handler) {
+    public void handlePacket(PacketHandler handler) throws IOException {
         handler.handleP06Accepted(this);
     }
 

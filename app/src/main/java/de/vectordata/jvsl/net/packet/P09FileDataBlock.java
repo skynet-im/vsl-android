@@ -1,5 +1,7 @@
 package de.vectordata.jvsl.net.packet;
 
+import java.io.IOException;
+
 import de.vectordata.jvsl.net.PacketHandler;
 import de.vectordata.jvsl.util.PacketBuffer;
 import de.vectordata.jvsl.util.cscompat.Nullable;
@@ -37,7 +39,7 @@ public class P09FileDataBlock implements Packet {
     }
 
     @Override
-    public void handlePacket(PacketHandler handler) {
+    public void handlePacket(PacketHandler handler) throws IOException {
         handler.handleP09FileDataBlock(this);
     }
 
