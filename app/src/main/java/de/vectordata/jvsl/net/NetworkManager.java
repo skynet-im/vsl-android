@@ -134,7 +134,7 @@ public class NetworkManager {
             if (success)
                 parent.getHandler().handleInternalPacket(id, content, CryptoAlgorithm.AES_256_CBC_HMAC_SHA256_MP3);
             else
-                ; // TODO Implement VSLClient.OnPacketReceived()
+                parent.onPacketReceived(id, content);
         }
     }
 
@@ -175,6 +175,11 @@ public class NetworkManager {
         sbuf.writeByteArray(hmac, false);
         sbuf.writeByteArray(cipherblock, false);
         parent.getChannel().sendAsync(sbuf.toArray());
+    }
+
+    public void generateKeys() {
+        aesKey = AesStatic.generateKey();
+        hmacKey = AesStatic.generateKey();
     }
 
     public byte[] getAesKey() {

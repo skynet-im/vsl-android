@@ -21,7 +21,6 @@ public class NetworkChannel {
     private static final String TAG = "NetworkChannel";
 
     private VSLClient parent;
-    private NetworkManager networkManager;
 
     private Socket socket;
     private InputStream inputStream;
@@ -37,7 +36,7 @@ public class NetworkChannel {
         this.parent = parent;
     }
 
-    public boolean connect(String host, int port, String publicKey) {
+    public boolean connect(String host, int port) {
         try {
             socket = new Socket();
             socket.setKeepAlive(true);
@@ -47,8 +46,6 @@ public class NetworkChannel {
             socket.connect(new InetSocketAddress(host, port), 10000);
             inputStream = socket.getInputStream();
             outputStream = socket.getOutputStream();
-            networkManager = new NetworkManager(parent, publicKey);
-            startThreads();
             return true;
         } catch (IOException e) {
             Log.e(TAG, "Failed to connect to the server", e);
@@ -56,7 +53,7 @@ public class NetworkChannel {
         }
     }
 
-    private void startThreads() {
+    public void startThreads() {
         startSenderThread();
         startReceiverThread();
     }
@@ -92,7 +89,7 @@ public class NetworkChannel {
                         synchronized (receivingWaitHandle) {
                             if (inputStream.available() == -1)
                                 throw new IOException("Connection closed: No more data");
-                            networkManager.receiveData();
+                            parent.getManager().receiveData();
                             receivingWaitHandle.wait(500);
                         }
                     } catch (IOException | InterruptedException e) {
@@ -108,7 +105,7 @@ public class NetworkChannel {
     private void handleDisconnect() {
         sendCache.clear();
         this.close();
-        // TODO Raise connectionLost event
+        parent.closeConnection("Socket disconnected");
     }
 
     void sendAsync(byte[] array) {

@@ -100,8 +100,7 @@ public class PacketHandler {
             case NotCompatible:
                 throw new IOException("Server refused connection due to incompatible versions.");
             case Compatible:
-                // TODO Assign connection version
-                // TODO Raise event
+                parent.onConnectionEstablished(p03FinishHandshake.vslVersion);
                 break;
         }
     }

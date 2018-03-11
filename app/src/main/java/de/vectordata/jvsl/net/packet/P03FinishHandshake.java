@@ -15,6 +15,8 @@ public class P03FinishHandshake implements Packet {
     public ConnectionState connectionState;
     private String address;
     private int port;
+    public int vslVersion;
+    public int productVersion;
 
     @Override
     public byte getPacketId() {
@@ -43,6 +45,10 @@ public class P03FinishHandshake implements Packet {
             address = buffer.readString();
             port = buffer.readUInt16();
         }
+        else if (connectionState == ConnectionState.Compatible){
+            vslVersion = buffer.readUInt16();
+            productVersion = buffer.readUInt16();
+        }
     }
 
     @Override
@@ -51,6 +57,10 @@ public class P03FinishHandshake implements Packet {
         if (connectionState == ConnectionState.Redirect) {
             buffer.writeString(address);
             buffer.writeUInt16(port);
+        }
+        else if (connectionState == ConnectionState.Compatible){
+            buffer.writeUInt16(vslVersion);
+            buffer.writeUInt16(productVersion);
         }
     }
 

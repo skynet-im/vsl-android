@@ -30,14 +30,10 @@ public class PacketBuffer {
         this(false);
     }
 
-    // TODO Does this return the length of a pre-filled buffer?
-    // TODO Yes it does
     public int getLength() {
         return buffer.capacity();
     }
 
-    // TODO Does this return the remaining size based on the length of a pre-filled buffer?
-    // TODO Yes it does, see my implementation of readToEnd()
     public int getPending() {
         return buffer.remaining();
     }

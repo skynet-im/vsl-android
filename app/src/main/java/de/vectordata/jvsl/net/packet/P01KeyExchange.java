@@ -11,8 +11,7 @@ import de.vectordata.jvsl.util.cscompat.Nullable;
 public class P01KeyExchange implements Packet {
 
     private byte[] aesKey;
-    private byte[] clientIV;
-    private byte[] serverIV;
+    private byte[] hmacKey;
     private int latestVSL;
     private int oldestVSL;
     private int latestProduct;
@@ -22,10 +21,9 @@ public class P01KeyExchange implements Packet {
 
     }
 
-    public P01KeyExchange(byte[] aesKey, byte[] clientIV, byte[] serverIV, int latestVSL, int oldestVSL, int latestProduct, int oldestProduct) {
+    public P01KeyExchange(byte[] aesKey, byte[] hmacKey, int latestVSL, int oldestVSL, int latestProduct, int oldestProduct) {
         this.aesKey = aesKey;
-        this.clientIV = clientIV;
-        this.serverIV = serverIV;
+        this.hmacKey = hmacKey;
         this.latestVSL = latestVSL;
         this.oldestVSL = oldestVSL;
         this.latestProduct = latestProduct;
@@ -55,8 +53,7 @@ public class P01KeyExchange implements Packet {
     @Override
     public void readPacket(PacketBuffer buffer) {
         aesKey = buffer.readByteArray(32);
-        clientIV = buffer.readByteArray(16);
-        serverIV = buffer.readByteArray(16);
+        hmacKey = buffer.readByteArray(32);
         latestVSL = buffer.readUInt16();
         oldestVSL = buffer.readUInt16();
         latestProduct = buffer.readUInt16();
@@ -66,8 +63,7 @@ public class P01KeyExchange implements Packet {
     @Override
     public void writePacket(PacketBuffer buffer) {
         buffer.writeByteArray(aesKey, false);
-        buffer.writeByteArray(clientIV, false);
-        buffer.writeByteArray(serverIV, false);
+        buffer.writeByteArray(hmacKey, false);
         buffer.writeUInt16(latestVSL);
         buffer.writeUInt16(oldestVSL);
         buffer.writeUInt16(latestProduct);

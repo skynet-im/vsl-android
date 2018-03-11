@@ -77,8 +77,6 @@ public class RsaStatic {
         return ciphertext;
     }
 
-    // TODO Comments
-
     /**
      * Decrypts one block using RSA with OAEP.
      *

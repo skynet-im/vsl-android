@@ -23,6 +23,7 @@ public class Constants {
      * @return
      */
     public static String getProductVersion(int length) {
+        // TODO Get version and build number from manifest
         throw new UnsupportedOperationException();
     }
 }
