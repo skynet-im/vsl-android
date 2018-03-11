@@ -2,7 +2,6 @@ package de.vectordata.jvsl.net.packet;
 
 import de.vectordata.jvsl.net.PacketHandler;
 import de.vectordata.jvsl.util.PacketBuffer;
-import de.vectordata.jvsl.util.cscompat.DateTime;
 import de.vectordata.jvsl.util.cscompat.Nullable;
 
 /**
@@ -11,24 +10,10 @@ import de.vectordata.jvsl.util.cscompat.Nullable;
  */
 public class P08FileHeader implements Packet {
 
-    public String name;
-    public long length;
-    private long attributes;
-    private DateTime creationTime;
-    private DateTime lastAccessTime;
-    private DateTime lastWriteTime;
-    private byte[] thumbnail;
-    private byte[] sha256;
+    public byte[] binaryData;
 
-    public P08FileHeader(String name, long length, long attributes, DateTime creationTime, DateTime lastAccessTime, DateTime lastWriteTime, byte[] thumbnail, byte[] sha256) {
-        this.name = name;
-        this.length = length;
-        this.attributes = attributes;
-        this.creationTime = creationTime;
-        this.lastAccessTime = lastAccessTime;
-        this.lastWriteTime = lastWriteTime;
-        this.thumbnail = thumbnail;
-        this.sha256 = sha256;
+    public P08FileHeader(byte[] binaryData) {
+        this.binaryData = binaryData;
     }
 
     public P08FileHeader() {
@@ -56,26 +41,12 @@ public class P08FileHeader implements Packet {
 
     @Override
     public void readPacket(PacketBuffer buffer) {
-        name = buffer.readString();
-        length = buffer.readInt64();
-        attributes = buffer.readUInt32();
-        creationTime = buffer.readDate();
-        lastAccessTime = buffer.readDate();
-        lastWriteTime = buffer.readDate();
-        thumbnail = buffer.readByteArray();
-        sha256 = buffer.readByteArray(32);
+        binaryData = buffer.readToEnd();
     }
 
     @Override
     public void writePacket(PacketBuffer buffer) {
-        buffer.writeString(name);
-        buffer.writeInt64(length);
-        buffer.writeUInt32(attributes);
-        buffer.writeDate(creationTime);
-        buffer.writeDate(lastAccessTime);
-        buffer.writeDate(lastWriteTime);
-        buffer.writeByteArray(thumbnail, true);
-        buffer.writeByteArray(sha256, false);
+        buffer.writeByteArray(binaryData, false);
     }
 
 }

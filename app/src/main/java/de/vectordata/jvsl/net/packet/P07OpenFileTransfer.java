@@ -1,8 +1,8 @@
 package de.vectordata.jvsl.net.packet;
 
+import de.vectordata.jvsl.fileTransfer.Identifier;
+import de.vectordata.jvsl.fileTransfer.StreamMode;
 import de.vectordata.jvsl.net.PacketHandler;
-import de.vectordata.jvsl.net.packet.util.Identifier;
-import de.vectordata.jvsl.net.packet.util.StreamMode;
 import de.vectordata.jvsl.util.PacketBuffer;
 import de.vectordata.jvsl.util.cscompat.Nullable;
 

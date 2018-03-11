@@ -47,4 +47,9 @@ public class VSLClient {
         // TODO Generate session keys
         // TODO Send key exchange packet
     }
+
+    public int getConnectionVersion() {
+        // TODO?
+        return 0;
+    }
 }

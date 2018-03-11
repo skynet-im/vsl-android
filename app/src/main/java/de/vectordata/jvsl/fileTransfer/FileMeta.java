@@ -306,4 +306,60 @@ public class FileMeta {
         }
         return current.getAbsolutePath();
     }
+
+    public ContentAlgorithm getAlgorithm() {
+        return algorithm;
+    }
+
+    public long getLength() {
+        return length;
+    }
+
+    public boolean isAvailable() {
+        return available;
+    }
+
+    public byte[] getHmacKey() {
+        return hmacKey;
+    }
+
+    public byte[] getAesKey() {
+        return aesKey;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public FileAttributes getAttributes() {
+        return attributes;
+    }
+
+    public DateTime getCreationTime() {
+        return creationTime;
+    }
+
+    public DateTime getLastAccessTime() {
+        return lastAccessTime;
+    }
+
+    public DateTime getLastWriteTime() {
+        return lastWriteTime;
+    }
+
+    public byte[] getThumbnail() {
+        return thumbnail;
+    }
+
+    public byte[] getSha256() {
+        return sha256;
+    }
+
+    public ContentAlgorithm getFileEncryption() {
+        return fileEncryption;
+    }
+
+    public byte[] getFileKey() {
+        return fileKey;
+    }
 }
