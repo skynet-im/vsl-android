@@ -61,7 +61,7 @@ public class JvslTest {
 
         while (true) {}
 
-        /**
+        /*
          * FTEventArgs args = new FTEventArgs(new Identifier(0), new FileMeta(path, algorithm, hmacKey, aesKey, null), path);
          args.Progress += VslClient_FTProgress;
          args.Finished += VslClient_FTFinished;
