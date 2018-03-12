@@ -13,6 +13,7 @@ import java.io.InputStream;
 public abstract class HashInputStream extends InputStream {
 
     public abstract int getPosition();
+
     public abstract byte[] getHash();
 
     @Override
@@ -22,7 +23,7 @@ public abstract class HashInputStream extends InputStream {
 
     @Override
     public int read(@NonNull byte[] b) throws IOException {
-        throw new UnsupportedOperationException("Reference implementation does not provide these methods");
+        return read(b, 0, b.length);
     }
 
     @Override

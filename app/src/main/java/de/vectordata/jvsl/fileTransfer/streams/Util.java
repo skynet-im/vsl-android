@@ -16,12 +16,12 @@ import javax.crypto.spec.SecretKeySpec;
 
 class Util {
 
-    static Cipher initAesCipher(byte[] key, byte[] iv) {
+    static Cipher initAesCipher(int opmode, byte[] key, byte[] iv) {
         SecretKeySpec keySpec = new SecretKeySpec(key, "AES");
         IvParameterSpec ivSpec = new IvParameterSpec(iv);
         try {
             Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-            cipher.init(Cipher.ENCRYPT_MODE, keySpec, ivSpec);
+            cipher.init(opmode, keySpec, ivSpec);
             return cipher;
         } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | InvalidAlgorithmParameterException e) {
             throw new RuntimeException(e);

@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import javax.crypto.Cipher;
 import javax.crypto.CipherOutputStream;
 
 import de.vectordata.jvsl.crypt.AesStatic;
@@ -59,7 +60,7 @@ public class AesShaOutputStream extends HashOutputStream {
         if (cryptographicOperation == CryptographicOperation.Encrypt) {
             if (first) {
                 stream.write(iv, 0, 16);
-                aesStream = new CipherOutputStream(stream, initAesCipher(key, iv));
+                aesStream = new CipherOutputStream(stream, initAesCipher(Cipher.ENCRYPT_MODE, key, iv));
                 shaStream = new ShaOutputStream(aesStream);
                 topStream = shaStream;
                 first = false;
@@ -73,7 +74,7 @@ public class AesShaOutputStream extends HashOutputStream {
                 len -= 16;
                 done += 16;
                 shaStream = new ShaOutputStream(stream);
-                aesStream = new CipherOutputStream(shaStream, initAesCipher(key, iv));
+                aesStream = new CipherOutputStream(shaStream, initAesCipher(Cipher.DECRYPT_MODE, key, iv));
                 topStream = aesStream;
                 first = false;
             }

@@ -118,10 +118,11 @@ public class FTSocket {
         byte[] buffer = new byte[262144];
         long pos = currentItem.getPosition();
         int count = currentItem.getHashInputStream().read(buffer, 0, buffer.length);
+        System.out.println(currentItem.getHashInputStream().getClass().getName() + " , " + count);
         parent.getManager().sendPacket(new P09FileDataBlock(pos, Util.takeBytes(buffer, count, 0)));
         currentItem.onProgress();
         if (count < buffer.length)
-            currentItem.closeStream(true);
+           currentItem.closeStream(true);
     }
 
     public void onPacketReceived(P07OpenFileTransfer packet) {

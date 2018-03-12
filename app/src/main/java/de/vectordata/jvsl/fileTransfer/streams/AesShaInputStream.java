@@ -4,15 +4,9 @@ import android.support.annotation.NonNull;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 
 import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.spec.IvParameterSpec;
-import javax.crypto.spec.SecretKeySpec;
 
 import de.vectordata.jvsl.crypt.AesStatic;
 
@@ -60,7 +54,7 @@ public class AesShaInputStream extends HashInputStream {
                 offset += 16;
                 count -= 16;
                 shaStream = new ShaInputStream(stream);
-                aesStream = new CipherInputStream(shaStream, initAesCipher(key, iv));
+                aesStream = new CipherInputStream(shaStream, initAesCipher(Cipher.ENCRYPT_MODE, key, iv));
                 topStream = aesStream;
                 first = false;
             }
@@ -68,14 +62,24 @@ public class AesShaInputStream extends HashInputStream {
             if (first) {
                 iv = new byte[16];
                 if (stream.read(iv, 0, 16) < 16) return -1;
-                aesStream = new CipherInputStream(stream, initAesCipher(key, iv));
+                aesStream = new CipherInputStream(stream, initAesCipher(Cipher.DECRYPT_MODE, key, iv));
                 shaStream = new ShaInputStream(aesStream);
                 topStream = shaStream;
                 first = false;
             }
         }
-        done += topStream.read(buffer, offset, count);
+        done += readFromStreamUntilItDies(buffer, offset, count);
         position += done;
+        return done;
+    }
+
+    private int readFromStreamUntilItDies(byte[] buffer, int offset, int count) throws IOException {
+        int done = 0;
+        while (done < count - offset) {
+            int d1 = topStream.read(buffer, offset + done, count);
+            if (d1 < 0) return done;
+            done += d1;
+        }
         return done;
     }
 

@@ -92,7 +92,6 @@ public class PacketBuffer {
     public void writeByteArray(byte[] arr, boolean sendArrLen) {
         if (sendArrLen)
             writeUInt32(arr.length);
-        System.out.println(arr.length);
         writeBytes(arr);
     }
 

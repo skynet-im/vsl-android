@@ -86,7 +86,7 @@ public class FTEventArgs {
             if (fileMeta.getFileEncryption() == ContentAlgorithm.NONE || !fileMeta.isAvailable())
                 hashInputStream = new ShaInputStream(inputStream);
             else if (fileMeta.getFileEncryption() == ContentAlgorithm.AES_256_CBC)
-                hashInputStream = new AesShaInputStream(inputStream, fileMeta.getFileKey(), CryptographicOperation.Decrypt);
+                hashInputStream = new AesShaInputStream(inputStream, fileMeta.getFileKey(), CryptographicOperation.Encrypt);
             else
                 throw new IllegalArgumentException("Cannot open file stream with " + fileMeta.getFileEncryption().name());
         }
