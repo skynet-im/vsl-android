@@ -29,7 +29,6 @@ public class NetworkChannel {
     private boolean shouldExit = false;
     private final ConcurrentLinkedQueue<byte[]> sendCache = new ConcurrentLinkedQueue<>();
 
-    private final Object receivingWaitHandle = new Object();
     private final Object sendingWaitHandle = new Object();
 
     public NetworkChannel(VSLClient parent) {
@@ -86,13 +85,10 @@ public class NetworkChannel {
             public void run() {
                 while (!shouldExit) {
                     try {
-                        synchronized (receivingWaitHandle) {
-                            if (inputStream.available() == -1)
-                                throw new IOException("Connection closed: No more data");
-                            parent.getManager().receiveData();
-                            receivingWaitHandle.wait(500);
-                        }
-                    } catch (IOException | InterruptedException e) {
+                        if (inputStream.available() == -1)
+                            throw new IOException("Connection closed: No more data");
+                        parent.getManager().receiveData();
+                    } catch (IOException e) {
                         shouldExit = true;
                         Log.e(TAG, "Failed to receive", e);
                     }
@@ -144,9 +140,6 @@ public class NetworkChannel {
     }
 
     public void wakeUp() {
-        synchronized (receivingWaitHandle) {
-            receivingWaitHandle.notifyAll();
-        }
         synchronized (sendingWaitHandle) {
             sendingWaitHandle.notifyAll();
         }

@@ -7,6 +7,8 @@ import android.support.test.runner.AndroidJUnit4;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import de.vectordata.jvsl.util.cscompat.Ref;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -23,6 +25,14 @@ public class ExampleInstrumentedTest {
         Context appContext = InstrumentationRegistry.getTargetContext();
 
         assertEquals("de.vectordata.jvsl", appContext.getPackageName());
+
+        Ref<String> test = new Ref<>();
+        test(test);
+        assertEquals(test.get(), "asdf");
+    }
+
+    private void test(Ref<String> t) {
+        t.set("asdf");
     }
 
 

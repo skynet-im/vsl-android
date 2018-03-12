@@ -97,8 +97,6 @@ public class VSLClient {
     }
 
     private byte invertId(byte id) {
-        int ubyte = id >= 0 ? id : 127 - id; // remove sign / example: 127--87 = 214
-        int value = 255 - ubyte; // get internal/external id / example: 255 - 214 = 41
-        return (byte) (value < 128 ? value : 127 - id); // restore sign / example: 127 - 214 = -87
+        return (byte) (255 - id);
     }
 }

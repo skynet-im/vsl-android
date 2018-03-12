@@ -67,14 +67,17 @@ public class NetworkManager {
         sendPacket(alg, packet.getPacketId(), !packet.getConstantLength().hasValue(), content);
     }
 
-    public void sendPacket(CryptoAlgorithm alg, byte realId, boolean size, byte[] content) {
+    private void sendPacket(CryptoAlgorithm alg, byte realId, boolean size, byte[] content) {
         switch (alg) {
             case NONE:
                 sendPacket_Plaintext(realId, size, content);
+                break;
             case RSA_2048_OAEP:
                 sendPacket_RSA_2048_OAEP(realId, size, content);
+                break;
             case AES_256_CBC_HMAC_SHA256_MP3:
                 sendPacket_AES_256_CBC_HMAC_SHA256_MP3(realId, size, content);
+                break;
             default:
                 throw new IllegalArgumentException();
         }
