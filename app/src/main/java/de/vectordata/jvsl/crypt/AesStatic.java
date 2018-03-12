@@ -27,6 +27,8 @@ public class AesStatic {
      * @return
      */
     public static byte[] encrypt(byte[] buffer, byte[] key, byte[] iv) {
+        if(key == null)
+            throw new IllegalArgumentException("key must not be null");
         if (key.length < 32)
             throw new IllegalArgumentException("Key has to be 256 bit (was " + key.length + ")");
 
