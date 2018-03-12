@@ -274,7 +274,7 @@ public class FileMeta {
         buf.writeDate(lastAccessTime);
         buf.writeDate(lastWriteTime);
         buf.writeByteArray(thumbnail, true);
-        buf.writeByteArray(sha256, true);
+        buf.writeByteArray(sha256, false);
         if (fileEncryption == ContentAlgorithm.AES_256_CBC)
             buf.writeByteArray(fileKey, false);
     }

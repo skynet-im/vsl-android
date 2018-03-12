@@ -29,7 +29,7 @@ public class AesShaInputStream extends HashInputStream {
 
     private int position;
 
-    private boolean first;
+    private boolean first = true;
 
     private byte[] key;
     private byte[] iv;
