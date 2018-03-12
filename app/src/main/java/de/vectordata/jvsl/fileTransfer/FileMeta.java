@@ -30,7 +30,7 @@ public class FileMeta {
 
     private byte[] encryptedContent;
 
-    private ContentAlgorithm algorithm;
+    private ContentAlgorithm algorithm = ContentAlgorithm.NONE;
     private long length;
     private boolean available;
 
@@ -43,7 +43,7 @@ public class FileMeta {
     private DateTime lastWriteTime;
     private byte[] thumbnail;
     private byte[] sha256;
-    private ContentAlgorithm fileEncryption;
+    private ContentAlgorithm fileEncryption = ContentAlgorithm.NONE;
     private byte[] fileKey;
 
     public FileMeta(byte[] binaryData, short connectionVersion) {

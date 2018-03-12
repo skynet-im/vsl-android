@@ -55,7 +55,7 @@ public class PacketHandler {
     }
 
     public boolean tryGetPacket(byte id, Ref<Packet> packet) {
-        if (id >= registeredPackets.length) {
+        if (id >= registeredPackets.length || id < 0) {
             packet.set(null);
             return false;
         }
@@ -92,7 +92,7 @@ public class PacketHandler {
     */
 
     public void handleP03FinishHandshake(P03FinishHandshake p03FinishHandshake) throws IOException {
-        switch (p03FinishHandshake.connectionState){
+        switch (p03FinishHandshake.connectionState) {
             case CompatibilityMode:
                 throw new UnsupportedOperationException("This VSL client does not support protocol version 1.1.");
             case Redirect:

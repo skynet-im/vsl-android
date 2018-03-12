@@ -19,7 +19,7 @@ public class PacketBuffer {
     }
 
     public PacketBuffer(boolean big) {
-        buffer = ByteBuffer.allocate(big ? 131072 + 8192 : 16384);
+        buffer = ByteBuffer.allocate(big ? 131072 + 8192 : 32767);
     }
 
     public PacketBuffer(int size) {
@@ -27,7 +27,7 @@ public class PacketBuffer {
     }
 
     public PacketBuffer() {
-        this(false);
+        this(true);
     }
 
     public int getLength() {
@@ -92,6 +92,7 @@ public class PacketBuffer {
     public void writeByteArray(byte[] arr, boolean sendArrLen) {
         if (sendArrLen)
             writeUInt32(arr.length);
+        System.out.println(arr.length);
         writeBytes(arr);
     }
 
