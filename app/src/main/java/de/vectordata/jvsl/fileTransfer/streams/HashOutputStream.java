@@ -14,6 +14,7 @@ public abstract class HashOutputStream extends OutputStream {
 
 
     public abstract int getPosition();
+
     public abstract byte[] getHash();
 
     @Override
@@ -23,7 +24,7 @@ public abstract class HashOutputStream extends OutputStream {
 
     @Override
     public void write(@NonNull byte[] b) throws IOException {
-        throw new UnsupportedOperationException("Reference implementation does not provide these methods");
+        write(b, 0, b.length);
     }
 
     @Override
