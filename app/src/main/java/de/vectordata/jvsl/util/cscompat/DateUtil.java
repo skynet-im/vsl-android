@@ -8,9 +8,9 @@ import java.util.Date;
  * (c) 2018 Twometer
  */
 
-public class DateUtil {
+class DateUtil {
 
-    public static Date createDate(int year, int month, int day) {
+    static Date createDate(int year, int month, int day) {
         Calendar cal = Calendar.getInstance();
         cal.set(Calendar.YEAR, year);
         cal.set(Calendar.MONTH, month - 1);
@@ -18,7 +18,7 @@ public class DateUtil {
         return cal.getTime();
     }
 
-    public static Date createDate(int year, int month, int day, int hour, int min, int sec) {
+    static Date createDate(int year, int month, int day, int hour, int min, int sec) {
         Calendar cal = Calendar.getInstance();
         cal.set(Calendar.YEAR, year);
         cal.set(Calendar.MONTH, month - 1);

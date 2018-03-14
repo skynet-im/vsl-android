@@ -30,7 +30,6 @@ public class AesShaInputStream extends HashInputStream {
     private CryptographicOperation cryptographicOperation;
 
     private ShaInputStream shaStream;
-    private CipherInputStream aesStream;
     private InputStream topStream;
 
     public AesShaInputStream(InputStream inputStream, byte[] key, CryptographicOperation operation) {
@@ -47,6 +46,7 @@ public class AesShaInputStream extends HashInputStream {
     @Override
     public int read(@NonNull byte[] buffer, int offset, int count) throws IOException {
         int done = 0;
+        CipherInputStream aesStream;
         if (cryptographicOperation == CryptographicOperation.Encrypt) {
             if (first) {
                 System.arraycopy(iv, 0, buffer, offset, 16);

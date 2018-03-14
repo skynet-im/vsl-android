@@ -24,7 +24,7 @@ public class Hash {
         return sha256(s.getBytes(Charset.forName("UTF-8")));
     }
 
-    public static byte[] sha256(byte[] buf) {
+    private static byte[] sha256(byte[] buf) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             digest.update(buf);

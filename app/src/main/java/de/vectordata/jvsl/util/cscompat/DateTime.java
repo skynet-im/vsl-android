@@ -209,7 +209,7 @@ public class DateTime {
         return isSameDay(DateTime.now());
     }
 
-    public boolean isSameDay(DateTime other) {
+    private boolean isSameDay(DateTime other) {
         return this.getDay() == other.getDay() && this.getMonth() == other.getMonth() && this.getYear() == other.getYear();
     }
 

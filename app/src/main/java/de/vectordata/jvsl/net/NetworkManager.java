@@ -29,7 +29,7 @@ public class NetworkManager {
         this.rsaKey = rsaKey;
     }
 
-    public void receiveData() throws IOException {
+    void receiveData() throws IOException {
         CryptoAlgorithm algorithm = CryptoAlgorithm.values()[parent.getChannel().receiveByte()];
         switch (algorithm) {
             case NONE:
@@ -51,7 +51,7 @@ public class NetworkManager {
         sendPacket(CryptoAlgorithm.AES_256_CBC_HMAC_SHA256_MP3, id, content);
     }
 
-    public void sendPacket(CryptoAlgorithm alg, byte id, byte[] content) {
+    private void sendPacket(CryptoAlgorithm alg, byte id, byte[] content) {
         sendPacket(alg, id, true, content);
     }
 
@@ -153,11 +153,11 @@ public class NetworkManager {
     }
 
     private void sendPacket_RSA_2048_OAEP(byte realId, boolean size, byte[] content) {
-        PacketBuffer pbuf = new PacketBuffer();
-        pbuf.writeByte(realId);
-        if (size) pbuf.writeUInt32(content.length);
-        pbuf.writeByteArray(content, false);
-        byte[] ciphertext = RsaStatic.encryptBlock(pbuf.toArray(), rsaKey);
+        PacketBuffer packetBuf = new PacketBuffer();
+        packetBuf.writeByte(realId);
+        if (size) packetBuf.writeUInt32(content.length);
+        packetBuf.writeByteArray(content, false);
+        byte[] ciphertext = RsaStatic.encryptBlock(packetBuf.toArray(), rsaKey);
         byte[] buf = new byte[1 + ciphertext.length];
         buf[0] = (byte) CryptoAlgorithm.RSA_2048_OAEP.ordinal();
         System.arraycopy(ciphertext, 0, buf, 1, ciphertext.length);
@@ -165,12 +165,12 @@ public class NetworkManager {
     }
 
     private void sendPacket_AES_256_CBC_HMAC_SHA256_MP3(byte realId, boolean size, byte[] content) {
-        PacketBuffer pbuf = new PacketBuffer();
-        pbuf.writeByte(realId);
-        if (size) pbuf.writeUInt32(content.length);
-        pbuf.writeByteArray(content, false);
+        PacketBuffer packetBuf = new PacketBuffer();
+        packetBuf.writeByte(realId);
+        if (size) packetBuf.writeUInt32(content.length);
+        packetBuf.writeByteArray(content, false);
         byte[] iv = AesStatic.generateIV();
-        byte[] ciphertext = AesStatic.encrypt(pbuf.toArray(), aesKey, iv);
+        byte[] ciphertext = AesStatic.encrypt(packetBuf.toArray(), aesKey, iv);
         byte[] blocks = new UInt24(ciphertext.length / 16 - 1).toByteArray(UInt24.Endianness.LittleEndian);
         byte[] cipherblock = Util.concatBytes(iv, ciphertext);
         byte[] hmac = HmacStatic.computeHmacSHA256(cipherblock, hmacKey);

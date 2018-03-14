@@ -7,18 +7,19 @@ package de.vectordata.jvsl.util;
 
 public class Util {
 
-    private final static char[] hexArray = "0123456789ABCDEF".toCharArray();
+    @SuppressWarnings("SpellCheckingInspection")
+    private final static char[] hexArray = "0123456789abcdef".toCharArray();
 
     /**
      * Splits a byte array into blocks.
      *
      * @param b
-     * @param blocksize
+     * @param blockSize
      * @return
      */
-    public static byte[][] splitBytes(byte[] b, int blocksize) {
+    public static byte[][] splitBytes(byte[] b, int blockSize) {
         int length = b.length;
-        int blocks = getTotalSize(length, blocksize) / blocksize;
+        int blocks = getTotalSize(length, blockSize) / blockSize;
         byte[][] value = new byte[blocks][];
         if (length == 0) {
             value[0] = new byte[0];
@@ -26,12 +27,12 @@ public class Util {
         }
         int i;
         for (i = 0; i < blocks - 1; i++) {
-            value[i] = new byte[blocksize];
-            System.arraycopy(b, i * blocksize, value[i], 0, blocksize);
+            value[i] = new byte[blockSize];
+            System.arraycopy(b, i * blockSize, value[i], 0, blockSize);
         }
-        int pending = length - i * blocksize;
+        int pending = length - i * blockSize;
         value[blocks - 1] = new byte[pending];
-        System.arraycopy(b, i * blocksize, value[blocks - 1], 0, pending);
+        System.arraycopy(b, i * blockSize, value[blocks - 1], 0, pending);
         return value;
     }
 

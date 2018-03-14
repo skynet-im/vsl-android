@@ -5,6 +5,6 @@ package de.vectordata.jvsl.fileTransfer;
  * © 2018 Daniel Lerch
  */
 
-public interface FTSocketListener {
+interface FTSocketListener {
     void onRequest(Object sender, FTEventArgs e);
 }

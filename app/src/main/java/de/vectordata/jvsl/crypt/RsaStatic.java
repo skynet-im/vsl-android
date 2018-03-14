@@ -123,10 +123,10 @@ public class RsaStatic {
             byte[] buf = decryptBlock(Util.takeBytes(ciphertext, 256, i * 256), key);
             System.arraycopy(buf, 0, tmp_plaintext, i * 214, buf.length);
         }
-        byte[] lbuf = decryptBlock(Util.takeBytes(ciphertext, 256, (blocks - 1) * 256), key);
-        byte[] plaintext = new byte[(blocks - 1) * 214 + lbuf.length];
+        byte[] decryptedBlock = decryptBlock(Util.takeBytes(ciphertext, 256, (blocks - 1) * 256), key);
+        byte[] plaintext = new byte[(blocks - 1) * 214 + decryptedBlock.length];
         System.arraycopy(tmp_plaintext, 0, plaintext, 0, (blocks - 1) * 214);
-        System.arraycopy(lbuf, 0, plaintext, (blocks - 1) * 214, lbuf.length);
+        System.arraycopy(decryptedBlock, 0, plaintext, (blocks - 1) * 214, decryptedBlock.length);
         return plaintext;
     }
 }

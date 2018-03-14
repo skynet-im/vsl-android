@@ -18,7 +18,7 @@ public class P03FinishHandshake implements Packet {
     private String address;
     private int port;
     public int vslVersion;
-    public int productVersion;
+    private int productVersion;
 
     @Override
     public byte getPacketId() {

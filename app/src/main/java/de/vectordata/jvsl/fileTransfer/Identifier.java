@@ -18,17 +18,17 @@ public class Identifier {
         this.id = id;
     }
 
-    public Identifier(long id) {
+    private Identifier(long id) {
         mode = IdentificationMode.UINT_64;
         this.id = id;
     }
 
-    public Identifier(byte[] id) {
+    private Identifier(byte[] id) {
         mode = IdentificationMode.BYTE_ARRAY;
         this.id = id;
     }
 
-    public Identifier(String id) {
+    private Identifier(String id) {
         mode = IdentificationMode.STRING;
         this.id = id;
     }

@@ -5,7 +5,7 @@ package de.vectordata.jvsl.example;
  * (c) 2018 Twometer
  */
 
-public class EventsExample {
+class EventsExample {
 
     private TestListener listener;
 

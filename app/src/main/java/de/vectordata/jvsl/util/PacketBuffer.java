@@ -18,7 +18,7 @@ public class PacketBuffer {
         buffer = ByteBuffer.wrap(buf);
     }
 
-    public PacketBuffer(boolean big) {
+    private PacketBuffer(boolean big) {
         buffer = ByteBuffer.allocate(big ? 131072 + 8192 : 32767);
     }
 

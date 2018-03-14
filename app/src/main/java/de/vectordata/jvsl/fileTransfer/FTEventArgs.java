@@ -46,7 +46,7 @@ public class FTEventArgs {
         this.path = path;
     }
 
-    protected FTEventArgs(Identifier identifier, StreamMode mode) {
+    FTEventArgs(Identifier identifier, StreamMode mode) {
         this.identifier = identifier;
         this.mode = mode;
     }
@@ -55,7 +55,7 @@ public class FTEventArgs {
         this.listener = listener;
     }
 
-    public boolean assign(VSLClient parent, FTSocket socket) {
+    void assign(VSLClient parent, FTSocket socket) {
         if (this.parent == null || this.socket == null) {
 
             if (parent == null) throw new IllegalArgumentException("parent must not be null");
@@ -64,12 +64,10 @@ public class FTEventArgs {
             if (socket == null) throw new IllegalArgumentException("socket must not be null");
             this.socket = socket;
 
-            return true;
         }
-        return false;
     }
 
-    public void openStream() throws FileNotFoundException {
+    void openStream() throws FileNotFoundException {
         if (mode == StreamMode.GET_HEADER || mode == StreamMode.PUSH_HEADER)
             throw new IllegalStateException("Cannot open file stream with " + mode);
 
@@ -107,30 +105,30 @@ public class FTEventArgs {
         closeStreamInternal(true, success);
     }
 
-    public void closeStreamInternal(boolean events, boolean success) {
+    private void closeStreamInternal(boolean events, boolean success) {
         if (events)
             onFinished();
         hashInputStream = null;
         hashOutputStream = null;
     }
 
-    public void onFileMetaTransferred() {
+    void onFileMetaTransferred() {
         if (mode == StreamMode.GET_HEADER || mode == StreamMode.GET_FILE)
             if (listener != null) listener.onFileMetaReceived(this);
         FTProgressEventArgs args = new FTProgressEventArgs(0, fileMeta.getLength());
         if (listener != null) listener.onProgress(this, args);
     }
 
-    public void onProgress() {
+    void onProgress() {
         FTProgressEventArgs args = new FTProgressEventArgs(getPosition(), fileMeta.getLength());
         if (listener != null) listener.onProgress(this, args);
     }
 
-    public void onFinished() {
+    void onFinished() {
         if (listener != null) listener.onFinished(this);
     }
 
-    public void onCancelled() {
+    private void onCancelled() {
         if (listener != null) listener.onCanceled(this);
     }
 

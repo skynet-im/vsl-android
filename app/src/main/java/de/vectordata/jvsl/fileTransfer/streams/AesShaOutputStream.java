@@ -30,7 +30,6 @@ public class AesShaOutputStream extends HashOutputStream {
     private CryptographicOperation cryptographicOperation;
 
     private ShaOutputStream shaStream;
-    private CipherOutputStream aesStream;
     private OutputStream topStream;
 
     public AesShaOutputStream(OutputStream outputStream, byte[] key, CryptographicOperation operation) {
@@ -57,6 +56,7 @@ public class AesShaOutputStream extends HashOutputStream {
     @Override
     public void write(@NonNull byte[] b, int off, int len) throws IOException {
         int done = 0;
+        CipherOutputStream aesStream;
         if (cryptographicOperation == CryptographicOperation.Encrypt) {
             if (first) {
                 stream.write(iv, 0, 16);

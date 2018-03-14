@@ -139,13 +139,13 @@ public class NetworkChannel {
         return null;
     }
 
-    public void wakeUp() {
+    private void wakeUp() {
         synchronized (sendingWaitHandle) {
             sendingWaitHandle.notifyAll();
         }
     }
 
-    public void close() {
+    private void close() {
         try {
             if (inputStream != null)
                 inputStream.close();

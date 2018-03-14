@@ -40,7 +40,7 @@ public class FTSocket {
         accept(e, path, null);
     }
 
-    public void accept(FTEventArgs e, String path, FileMeta meta) throws IOException {
+    private void accept(FTEventArgs e, String path, FileMeta meta) throws IOException {
         e.setPath(path);
         e.assign(parent, this);
         e.setFileMeta(meta);

@@ -7,11 +7,11 @@ import de.vectordata.jvsl.net.packet.Packet;
  * © 2018 Daniel Lerch
  */
 
-public class PacketRule {
+class PacketRule {
     private final Packet packet;
     private final boolean[] algorithms;
 
-    public PacketRule(Packet packet, CryptoAlgorithm... algs) {
+    PacketRule(Packet packet, CryptoAlgorithm... algs) {
         this.packet = packet;
         algorithms = new boolean[4];
         for (CryptoAlgorithm alg : algs) {
@@ -23,7 +23,7 @@ public class PacketRule {
         return packet;
     }
 
-    public boolean verifyAlgorithm(CryptoAlgorithm algorithm) {
+    boolean verifyAlgorithm(CryptoAlgorithm algorithm) {
         return algorithms[algorithm.ordinal()];
     }
 }

@@ -146,7 +146,7 @@ public class FileMeta {
         read_v1_2(buf, hmacKey, aesKey);
     }
 
-    public FileMeta(String path, ContentAlgorithm algorithm) throws IOException {
+    FileMeta(String path, ContentAlgorithm algorithm) throws IOException {
         this(path, algorithm, null, null, null);
     }
 
@@ -195,13 +195,13 @@ public class FileMeta {
             } else if (algorithm == ContentAlgorithm.AES_256_CBC_HMAC_SHA_256) {
                 write_v1_2_header(buf);
                 if (available) {
-                    byte[] plaindata;
-                    PacketBuffer ibuf = new PacketBuffer();
-                    write_v1_2_core(ibuf);
-                    plaindata = ibuf.toArray();
+                    byte[] plainData;
+                    PacketBuffer buffer = new PacketBuffer();
+                    write_v1_2_core(buffer);
+                    plainData = buffer.toArray();
 
                     byte[] iv = AesStatic.generateIV();
-                    byte[] ciphertext = AesStatic.encrypt(plaindata, aesKey, iv);
+                    byte[] ciphertext = AesStatic.encrypt(plainData, aesKey, iv);
                     buf.writeByteArray(HmacStatic.computeHmacSHA256(Util.concatBytes(iv, ciphertext), hmacKey), false);
                     buf.writeByteArray(iv, false);
                     buf.writeByteArray(ciphertext, false);
@@ -281,7 +281,7 @@ public class FileMeta {
 
     public String apply(String sourcePath, String targetDir) {
         if (!available)
-            throw new IllegalStateException("can't apply encrypted filemeta");
+            throw new IllegalStateException("can't apply encrypted file meta");
         if (!FileUtils.directoryExists(targetDir))
             throw new IllegalArgumentException("Target dir not found");
 
@@ -291,12 +291,12 @@ public class FileMeta {
             String name = this.name.substring(0, this.name.lastIndexOf("."));
             String extension = this.name.substring(this.name.lastIndexOf("."));
             while (true) {
-                String newpath = FileUtils.pathCombine(targetDir, name + " (" + count + ")." + extension);
-                if (FileUtils.fileExists(newpath))
+                String newPath = FileUtils.pathCombine(targetDir, name + " (" + count + ")." + extension);
+                if (FileUtils.fileExists(newPath))
                     count++;
                 else {
-                    if (!current.renameTo(new File(newpath)))
-                        Log.e(TAG, "Failed to move file to " + newpath);
+                    if (!current.renameTo(new File(newPath)))
+                        Log.e(TAG, "Failed to move file to " + newPath);
                     break;
                 }
             }

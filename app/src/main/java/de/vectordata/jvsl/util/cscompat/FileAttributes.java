@@ -21,7 +21,7 @@ public enum FileAttributes {
     NotContentIndexed(0x2000),
     Encrypted(0x4000);
 
-    private int value;
+    private final int value;
 
     FileAttributes(int value) {
         this.value = value;
