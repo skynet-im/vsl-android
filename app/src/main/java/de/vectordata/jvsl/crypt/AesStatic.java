@@ -12,6 +12,9 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
+import de.vectordata.jvsl.util.PacketBuffer;
+import de.vectordata.jvsl.util.cscompat.Ref;
+
 /**
  * Created by Daniel Lerch on 07.03.2018.
  * © 2018 Daniel Lerch
@@ -21,13 +24,14 @@ public class AesStatic {
 
     /**
      * Executes an AES encryption.
+     *
      * @param buffer Plaintext.
-     * @param key AES key (128 or 256 bit).
-     * @param iv Initialization vector (128 bit).
+     * @param key    AES key (128 or 256 bit).
+     * @param iv     Initialization vector (128 bit).
      * @return
      */
     public static byte[] encrypt(byte[] buffer, byte[] key, byte[] iv) {
-        if(key == null)
+        if (key == null)
             throw new IllegalArgumentException("key must not be null");
         if (key.length < 32)
             throw new IllegalArgumentException("Key has to be 256 bit (was " + key.length + ")");
@@ -46,12 +50,13 @@ public class AesStatic {
 
     /**
      * Executes an AES decryption.
+     *
      * @param buffer Ciphertext.
-     * @param key AES key (128 or 256 bit).
-     * @param iv Initialization vector (128 bit).
+     * @param key    AES key (128 or 256 bit).
+     * @param iv     Initialization vector (128 bit).
      * @return
      */
-    public static byte[] decrypt(byte[] buffer, byte[] key, byte[] iv){
+    public static byte[] decrypt(byte[] buffer, byte[] key, byte[] iv) {
         if (key.length < 32)
             throw new IllegalArgumentException("Key has to be 256 bit (was " + key.length + ")");
 
@@ -69,24 +74,33 @@ public class AesStatic {
 
     /**
      * Generates a new 256 bit AES key
+     *
      * @return
      */
-    public static byte[] generateKey(){
+    public static byte[] generateKey() {
         return generateRandom(32);
     }
 
     /**
      * Generates a new 128 bit initialization vector.
+     *
      * @return
      */
-    public static byte[] generateIV(){
+    public static byte[] generateIV() {
         return generateRandom(16);
     }
 
-    private static byte[] generateRandom(int length){
+    private static byte[] generateRandom(int length) {
         SecureRandom random = new SecureRandom();
         byte[] bytes = new byte[length];
         random.nextBytes(bytes);
         return bytes;
+    }
+
+    public static byte[] incrementIv(byte[] receiveIv) {
+        PacketBuffer bufferIn = new PacketBuffer(receiveIv);
+        PacketBuffer bufferOut = new PacketBuffer();
+        bufferOut.writeInt64(bufferIn.readInt64() + 1);
+        return bufferOut.toArray();
     }
 }

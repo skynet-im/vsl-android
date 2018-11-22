@@ -1,6 +1,7 @@
 package de.vectordata.jvsl.net;
 
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 
 import de.vectordata.jvsl.VSLClient;
 import de.vectordata.jvsl.crypt.AesStatic;
@@ -23,6 +24,7 @@ public class NetworkManager {
     private String rsaKey;
     private byte[] aesKey;
     private byte[] hmacKey;
+    private byte[] receiveIv;
 
     public NetworkManager(VSLClient parent, String rsaKey) {
         this.parent = parent;
@@ -41,6 +43,9 @@ public class NetworkManager {
             //case AES_256_CBC_SP:
             case AES_256_CBC_HMAC_SHA256_MP3:
                 receivePacket_AES_256_CBC_HMAC_SHA_256_MP3();
+                break;
+            case AES_256_CBC_HMAC_SHA256_CTR:
+                receivePacket_AES_256_CBC_HMAC_SHA_256_CTR();
                 break;
             default:
                 throw new EnumConstantNotPresentException(CryptoAlgorithm.class, algorithm.toString());
@@ -134,13 +139,37 @@ public class NetworkManager {
             else
                 length = (int) plaintext.readUInt32();
             if (length > plaintext.getPending())
-                throw new IllegalArgumentException("Too big packet!");
+                throw new IllegalArgumentException("Packet too big!");
             byte[] content = plaintext.readByteArray(length);
             if (success)
                 parent.getHandler().handleInternalPacket(id, content, CryptoAlgorithm.AES_256_CBC_HMAC_SHA256_MP3);
             else
                 parent.onPacketReceived(id, content);
         }
+    }
+
+    private void receivePacket_AES_256_CBC_HMAC_SHA_256_CTR() throws IOException {
+        CryptoAlgorithm alg = CryptoAlgorithm.AES_256_CBC_HMAC_SHA256_CTR;
+        byte[] buffer = parent.getChannel().receive(35);
+        int blocks = UInt24.fromByteArray(Util.takeBytes(buffer, 3, 0), UInt24.Endianness.LittleEndian).getValue();
+        byte[] hmac = Util.skipBytes(buffer, 3);
+        int pendingLength = (blocks + 1) * 16;
+        byte[] cipherblock = parent.getChannel().receive(pendingLength);
+        if (!Util.sequenceEqual(hmac, HmacStatic.computeHmacSHA256(cipherblock, hmacKey)))
+            throw new SecurityException("Message corrupted");
+        byte[] plainbuffer = AesStatic.decrypt(cipherblock, aesKey, receiveIv);
+        receiveIv = AesStatic.incrementIv(receiveIv);
+        PacketBuffer plaintext = new PacketBuffer(plainbuffer);
+        byte id = plaintext.readByte();
+        boolean isInternal = parent.getHandler().isInternalPacket(id);
+        PacketRule rule = null;
+        if (isInternal && (rule = parent.getHandler().findRule(id, alg)) == null)
+            return;
+        byte[] content = plaintext.readToEnd();
+        if (isInternal)
+            parent.getHandler().handleInternalPacket(id, content, alg);
+        else
+            parent.onPacketReceived(id, content);
     }
 
     private void sendPacket_Plaintext(byte realId, boolean size, byte[] content) {

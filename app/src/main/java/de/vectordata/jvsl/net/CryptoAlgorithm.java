@@ -21,5 +21,10 @@ public enum CryptoAlgorithm {
     /**
      * AES-256 CBC with HMAC-SHA256, multi packet mode and 3byte length marker.
      */
-    AES_256_CBC_HMAC_SHA256_MP3
+    AES_256_CBC_HMAC_SHA256_MP3,
+
+    /**
+     * AES-256 CBC with HMAC-SHA256 and IV counter.
+     */
+    AES_256_CBC_HMAC_SHA256_CTR
 }

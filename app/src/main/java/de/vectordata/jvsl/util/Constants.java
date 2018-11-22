@@ -10,11 +10,16 @@ public class Constants {
     /**
      * The installed version as ushort.
      */
-    public static final int VERSION_NUMBER = 2;
+    public static final int VERSION_NUMBER = 3;
     /**
      * The oldest supported version of VSL.
      */
-    public static final int COMPATIBILITY_VERSION = 2;
+    public static final int COMPATIBILITY_VERSION = 3;
+
+    /**
+     * The count of internal packets. This is important to split the ID range in two spaces.
+     */
+    public static final int INTERNAL_PACKET_COUNT = 10;
 
     /**
      * Returns the product version of the current assembly with the specified precision.

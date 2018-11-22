@@ -1,5 +1,7 @@
 package de.vectordata.jvsl.net;
 
+import android.util.Log;
+
 import java.io.IOException;
 
 import de.vectordata.jvsl.VSLClient;
@@ -13,6 +15,7 @@ import de.vectordata.jvsl.net.packet.P08FileHeader;
 import de.vectordata.jvsl.net.packet.P09FileDataBlock;
 import de.vectordata.jvsl.net.packet.Packet;
 import de.vectordata.jvsl.net.packet.util.KeepAliveRole;
+import de.vectordata.jvsl.util.Constants;
 import de.vectordata.jvsl.util.PacketBuffer;
 import de.vectordata.jvsl.util.cscompat.Ref;
 
@@ -133,5 +136,18 @@ public class PacketHandler {
 
     public void handleP09FileDataBlock(P09FileDataBlock p09FileDataBlock) throws IOException {
         parent.getFileTransfer().onPacketReceived(p09FileDataBlock);
+    }
+
+    boolean isInternalPacket(byte id) {
+        return id < Constants.INTERNAL_PACKET_COUNT;
+    }
+
+
+    PacketRule findRule(byte id, CryptoAlgorithm alg) {
+        PacketRule rule = registeredPackets[id];
+        if (rule == null)
+            return null;
+        if (!rule.verifyAlgorithm(alg)) return null;
+        return rule;
     }
 }
