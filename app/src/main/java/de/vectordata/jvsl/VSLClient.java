@@ -5,6 +5,7 @@ import de.vectordata.jvsl.net.CryptoAlgorithm;
 import de.vectordata.jvsl.net.NetworkChannel;
 import de.vectordata.jvsl.net.NetworkManager;
 import de.vectordata.jvsl.net.PacketHandler;
+import de.vectordata.jvsl.net.Priority;
 import de.vectordata.jvsl.net.packet.P00Handshake;
 import de.vectordata.jvsl.net.packet.P01KeyExchange;
 import de.vectordata.jvsl.net.packet.util.RequestType;
@@ -69,10 +70,10 @@ public class VSLClient {
         fileTransfer = new FTSocket(this);
         channel.startThreads();
 
-        manager.sendPacket(CryptoAlgorithm.NONE, new P00Handshake(RequestType.DirectPublicKey));
+        manager.sendPacket(CryptoAlgorithm.NONE, new P00Handshake(RequestType.DirectPublicKey), Priority.Realtime);
         manager.generateKeys();
         manager.sendPacket(CryptoAlgorithm.RSA_2048_OAEP, new P01KeyExchange(manager.getAesKey(), manager.getHmacKey(),
-                Constants.VERSION_NUMBER, Constants.COMPATIBILITY_VERSION, latestProduct, oldestProduct));
+                Constants.VERSION_NUMBER, Constants.COMPATIBILITY_VERSION, latestProduct, oldestProduct), Priority.Realtime);
         return true;
     }
 
@@ -89,7 +90,7 @@ public class VSLClient {
     public void sendPacket(byte id, byte[] content) {
         if (!connectionAvailable)
             throw new IllegalStateException("You cannot send a packet without a secure connection");
-        manager.sendPacket(invertId(id), content);
+        manager.sendPacket(invertId(id), content, Priority.Realtime);
     }
 
     public void closeConnection(String reason) {

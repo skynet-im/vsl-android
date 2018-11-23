@@ -27,7 +27,8 @@ public class NetworkChannel {
     private OutputStream outputStream;
 
     private boolean shouldExit = false;
-    private final ConcurrentLinkedQueue<byte[]> sendCache = new ConcurrentLinkedQueue<>();
+    private final ConcurrentLinkedQueue<SendItem> sendCache = new ConcurrentLinkedQueue<>();
+    private final ConcurrentLinkedQueue<SendItem> sendCacheBackground = new ConcurrentLinkedQueue<>();
 
     private final Object sendingWaitHandle = new Object();
 
@@ -58,43 +59,41 @@ public class NetworkChannel {
     }
 
     private void startSenderThread() {
-        (new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (!shouldExit) {
-                    try {
-                        synchronized (sendingWaitHandle) {
-                            while (sendCache.isEmpty())
-                                sendingWaitHandle.wait();
-                            byte[] array = sendCache.poll();
-                            outputStream.write(array);
+        (new Thread(() -> {
+            while (!shouldExit) {
+                try {
+                    synchronized (sendingWaitHandle) {
+                        boolean priorityCacheEmpty;
+                        while ((priorityCacheEmpty = sendCache.isEmpty()) && sendCacheBackground.isEmpty())
+                            sendingWaitHandle.wait();
+                        SendItem item = priorityCacheEmpty ? sendCacheBackground.poll() : sendCache.poll();
+                        if (item != null) {
+                            outputStream.write(item.getData());
+                            item.notifySend();
                         }
-                    } catch (IOException | InterruptedException e) {
-                        shouldExit = true;
-                        Log.e(TAG, "Failed to send packet", e);
                     }
+                } catch (IOException | InterruptedException e) {
+                    shouldExit = true;
+                    Log.e(TAG, "Failed to send packet", e);
                 }
-                handleDisconnect();
             }
+            handleDisconnect();
         })).start();
     }
 
     private void startReceiverThread() {
-        (new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (!shouldExit) {
-                    try {
-                        if (inputStream.available() == -1)
-                            throw new IOException("Connection closed: No more data");
-                        parent.getManager().receiveData();
-                    } catch (IOException e) {
-                        shouldExit = true;
-                        Log.e(TAG, "Failed to receive", e);
-                    }
+        (new Thread(() -> {
+            while (!shouldExit) {
+                try {
+                    if (inputStream.available() == -1)
+                        throw new IOException("Connection closed: No more data");
+                    parent.getManager().receiveData();
+                } catch (IOException e) {
+                    shouldExit = true;
+                    Log.e(TAG, "Failed to receive", e);
                 }
-                handleDisconnect();
             }
+            handleDisconnect();
         })).start();
     }
 
@@ -104,9 +103,18 @@ public class NetworkChannel {
         parent.closeConnection("Socket disconnected");
     }
 
-    void sendAsync(byte[] array) {
-        sendCache.add(array);
+    SendItem sendAsync(byte[] array) {
+        SendItem item = new SendItem(array);
+        sendCache.add(item);
         wakeUp();
+        return item;
+    }
+
+    SendItem sendAsyncBackground(byte[] array) {
+        SendItem item = new SendItem(array);
+        sendCacheBackground.add(item);
+        wakeUp();
+        return item;
     }
 
     byte receiveByte() {

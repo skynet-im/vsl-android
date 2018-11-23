@@ -8,6 +8,7 @@ import java.io.StreamCorruptedException;
 
 import de.vectordata.jvsl.VSLClient;
 import de.vectordata.jvsl.crypt.ContentAlgorithm;
+import de.vectordata.jvsl.net.Priority;
 import de.vectordata.jvsl.net.packet.P06Accepted;
 import de.vectordata.jvsl.net.packet.P07OpenFileTransfer;
 import de.vectordata.jvsl.net.packet.P08FileHeader;
@@ -45,18 +46,18 @@ public class FTSocket {
         e.assign(parent, this);
         e.setFileMeta(meta);
 
-        parent.getManager().sendPacket(new P06Accepted(true, (byte) 7, ProblemCategory.None));
+        parent.getManager().sendPacket(new P06Accepted(true, (byte) 7, ProblemCategory.None), Priority.Realtime);
         if (currentItem.getMode() == StreamMode.PUSH_FILE || currentItem.getMode() == StreamMode.PUSH_FILE) {
             if (currentItem.getFileMeta() == null)
                 currentItem.setFileMeta(new FileMeta(path, ContentAlgorithm.NONE));
-            parent.getManager().sendPacket(new P08FileHeader(currentItem.getFileMeta().getBinaryData(parent.getConnectionVersion())));
+            parent.getManager().sendPacket(new P08FileHeader(currentItem.getFileMeta().getBinaryData(parent.getConnectionVersion())), Priority.Realtime);
         } else if (meta != null) {
             Log.i(TAG, "Got a FileMeta for receiving, ignoring it.");
         }
     }
 
     public void cancel(FTEventArgs e) throws StreamCorruptedException {
-        parent.getManager().sendPacket(new P06Accepted(false, (byte) 7, ProblemCategory.None));
+        parent.getManager().sendPacket(new P06Accepted(false, (byte) 7, ProblemCategory.None), Priority.Realtime);
         e.assign(parent, this);
         e.closeStream(false);
         currentItem = null;
@@ -66,28 +67,28 @@ public class FTSocket {
         e.assign(parent, this);
         e.setMode(StreamMode.GET_HEADER);
         currentItem = e;
-        parent.getManager().sendPacket(new P07OpenFileTransfer(e.getIdentifier(), e.getMode()));
+        parent.getManager().sendPacket(new P07OpenFileTransfer(e.getIdentifier(), e.getMode()), Priority.Realtime);
     }
 
     public void download(FTEventArgs e) {
         e.assign(parent, this);
         e.setMode(StreamMode.GET_FILE);
         currentItem = e;
-        parent.getManager().sendPacket(new P07OpenFileTransfer(e.getIdentifier(), e.getMode()));
+        parent.getManager().sendPacket(new P07OpenFileTransfer(e.getIdentifier(), e.getMode()), Priority.Realtime);
     }
 
     public void upload(FTEventArgs e) {
         e.assign(parent, this);
         e.setMode(StreamMode.PUSH_FILE);
         currentItem = e;
-        parent.getManager().sendPacket(new P07OpenFileTransfer(e.getIdentifier(), e.getMode()));
+        parent.getManager().sendPacket(new P07OpenFileTransfer(e.getIdentifier(), e.getMode()), Priority.Realtime);
     }
 
     public void doContinue(FTEventArgs e) throws FileNotFoundException {
         if (e.getMode() != StreamMode.GET_FILE)
             throw new IllegalStateException("Cannot continue with of StreamMode != GET_FILE");
         currentItem.openStream();
-        parent.getManager().sendPacket(new P06Accepted(true, (byte) 8, ProblemCategory.None));
+        parent.getManager().sendPacket(new P06Accepted(true, (byte) 8, ProblemCategory.None), Priority.Realtime);
     }
 
     public void onPacketReceived(P06Accepted packet) throws IOException {
@@ -97,7 +98,7 @@ public class FTSocket {
             currentItem = null;
         } else if (packet.accepted && packet.relatedPacket == 7) {
             if (currentItem.getMode() == StreamMode.PUSH_HEADER || currentItem.getMode() == StreamMode.PUSH_FILE)
-                parent.getManager().sendPacket(new P08FileHeader(currentItem.getFileMeta().getBinaryData(parent.getConnectionVersion())));
+                parent.getManager().sendPacket(new P08FileHeader(currentItem.getFileMeta().getBinaryData(parent.getConnectionVersion())), Priority.Realtime);
         } else if (packet.accepted && packet.relatedPacket == 8) {
             currentItem.onFileMetaTransferred();
             if (currentItem.getMode() == StreamMode.PUSH_FILE) {
@@ -118,7 +119,7 @@ public class FTSocket {
         byte[] buffer = new byte[262144];
         long pos = currentItem.getPosition();
         int count = currentItem.getHashInputStream().read(buffer, 0, buffer.length);
-        parent.getManager().sendPacket(new P09FileDataBlock(pos, Util.takeBytes(buffer, count, 0)));
+        parent.getManager().sendPacket(new P09FileDataBlock(pos, Util.takeBytes(buffer, count, 0)), Priority.Realtime);
         currentItem.onProgress();
         if (count < buffer.length)
            currentItem.closeStream(true);
@@ -145,7 +146,7 @@ public class FTSocket {
         currentItem.onFileMetaTransferred();
         if (currentItem.getMode() == StreamMode.GET_HEADER) {
             currentItem.onFinished();
-            parent.getManager().sendPacket(new P06Accepted(true, (byte) 8, ProblemCategory.None));
+            parent.getManager().sendPacket(new P06Accepted(true, (byte) 8, ProblemCategory.None), Priority.Realtime);
         }
     }
 
@@ -162,6 +163,6 @@ public class FTSocket {
             currentItem.closeStream(true);
             currentItem = null;
         }
-        parent.getManager().sendPacket(new P06Accepted(true, (byte) 9, ProblemCategory.None));
+        parent.getManager().sendPacket(new P06Accepted(true, (byte) 9, ProblemCategory.None), Priority.Realtime);
     }
 }

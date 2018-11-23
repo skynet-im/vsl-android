@@ -116,7 +116,7 @@ public class PacketHandler {
 
     public void handleP05KeepAlive(P05KeepAlive p05KeepAlive) {
         if (p05KeepAlive.getRole() == KeepAliveRole.REQUEST)
-            parent.getManager().sendPacket(new P05KeepAlive(KeepAliveRole.RESPONSE));
+            parent.getManager().sendPacket(new P05KeepAlive(KeepAliveRole.RESPONSE), Priority.Realtime);
     }
 
     public void handleP06Accepted(P06Accepted p06Accepted) throws IOException {
