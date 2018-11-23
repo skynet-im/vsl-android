@@ -1,13 +1,15 @@
 package de.vectordata.jvsl.net;
 
+import java.util.concurrent.Semaphore;
+
 public class SendItem {
 
     private final byte[] data;
-    private final Object waitHandle;
+    private final Semaphore semaphore;
 
     public SendItem(byte[] data) {
         this.data = data;
-        this.waitHandle = new Object();
+        this.semaphore = new Semaphore(0);
     }
 
     public byte[] getData() {
@@ -15,15 +17,11 @@ public class SendItem {
     }
 
     public void notifySend() {
-        synchronized (waitHandle) {
-            waitHandle.notifyAll();
-        }
+        semaphore.release();
     }
 
     public void waitForSend() throws InterruptedException {
-        synchronized (waitHandle) {
-            waitHandle.wait();
-        }
+        semaphore.acquire();
     }
 
 }

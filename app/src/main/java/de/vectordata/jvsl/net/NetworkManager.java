@@ -53,39 +53,36 @@ public class NetworkManager {
         }
     }
 
-    public void sendPacket(byte id, byte[] content, Priority priority) {
-        sendPacket(CryptoAlgorithm.AES_256_CBC_HMAC_SHA256_MP3, id, content, priority);
+    public SendItem sendPacket(byte id, byte[] content, Priority priority) {
+        return sendPacket(CryptoAlgorithm.AES_256_CBC_HMAC_SHA256_CTR, id, content, priority);
     }
 
-    private void sendPacket(CryptoAlgorithm alg, byte id, byte[] content, Priority priority) {
-        sendPacket(alg, id, true, content, priority);
+    private SendItem sendPacket(CryptoAlgorithm alg, byte id, byte[] content, Priority priority) {
+        return sendPacket(alg, id, true, content, priority);
     }
 
-    public void sendPacket(Packet packet, Priority priority) {
-        sendPacket(CryptoAlgorithm.AES_256_CBC_HMAC_SHA256_MP3, packet, priority);
+    public SendItem sendPacket(Packet packet, Priority priority) {
+        return sendPacket(CryptoAlgorithm.AES_256_CBC_HMAC_SHA256_CTR, packet, priority);
     }
 
-    public void sendPacket(CryptoAlgorithm alg, Packet packet, Priority priority) {
+    public SendItem sendPacket(CryptoAlgorithm alg, Packet packet, Priority priority) {
         byte[] content;
         PacketBuffer buf = new PacketBuffer();
         packet.writePacket(buf);
         content = buf.toArray();
-        sendPacket(alg, packet.getPacketId(), !packet.getConstantLength().hasValue(), content, priority);
+        return sendPacket(alg, packet.getPacketId(), !packet.getConstantLength().hasValue(), content, priority);
     }
 
-    private void sendPacket(CryptoAlgorithm alg, byte realId, boolean size, byte[] content, Priority priority) {
+    private SendItem sendPacket(CryptoAlgorithm alg, byte realId, boolean size, byte[] content, Priority priority) {
         switch (alg) {
             case NONE:
-                sendPacket_Plaintext(realId, size, content);
-                break;
+                return sendPacket_Plaintext(realId, size, content);
             case RSA_2048_OAEP:
-                sendPacket_RSA_2048_OAEP(realId, size, content);
-                break;
+                return sendPacket_RSA_2048_OAEP(realId, size, content);
             case AES_256_CBC_HMAC_SHA256_MP3:
-                sendPacket_AES_256_CBC_HMAC_SHA256_MP3(realId, size, content);
-                break;
+                return sendPacket_AES_256_CBC_HMAC_SHA256_MP3(realId, size, content);
             case AES_256_CBC_HMAC_SHA256_CTR:
-                sendPacket_AES_256_CBC_HMAC_SHA256_CTR(realId, size, content, priority);
+                return sendPacket_AES_256_CBC_HMAC_SHA256_CTR(realId, size, content, priority);
             default:
                 throw new IllegalArgumentException();
         }
@@ -174,16 +171,16 @@ public class NetworkManager {
             parent.onPacketReceived(id, content);
     }
 
-    private void sendPacket_Plaintext(byte realId, boolean size, byte[] content) {
+    private SendItem sendPacket_Plaintext(byte realId, boolean size, byte[] content) {
         PacketBuffer pbuf = new PacketBuffer();
         pbuf.writeByte((byte) CryptoAlgorithm.NONE.ordinal());
         pbuf.writeByte(realId);
         if (size) pbuf.writeUInt32(content.length);
         pbuf.writeByteArray(content, false);
-        parent.getChannel().sendAsync(pbuf.toArray());
+        return parent.getChannel().sendAsync(pbuf.toArray());
     }
 
-    private void sendPacket_RSA_2048_OAEP(byte realId, boolean size, byte[] content) {
+    private SendItem sendPacket_RSA_2048_OAEP(byte realId, boolean size, byte[] content) {
         PacketBuffer packetBuf = new PacketBuffer();
         packetBuf.writeByte(realId);
         if (size) packetBuf.writeUInt32(content.length);
@@ -192,10 +189,10 @@ public class NetworkManager {
         byte[] buf = new byte[1 + ciphertext.length];
         buf[0] = (byte) CryptoAlgorithm.RSA_2048_OAEP.ordinal();
         System.arraycopy(ciphertext, 0, buf, 1, ciphertext.length);
-        parent.getChannel().sendAsync(buf);
+        return parent.getChannel().sendAsync(buf);
     }
 
-    private void sendPacket_AES_256_CBC_HMAC_SHA256_MP3(byte realId, boolean size, byte[] content) {
+    private SendItem sendPacket_AES_256_CBC_HMAC_SHA256_MP3(byte realId, boolean size, byte[] content) {
         PacketBuffer packetBuf = new PacketBuffer();
         packetBuf.writeByte(realId);
         if (size) packetBuf.writeUInt32(content.length);
@@ -210,10 +207,10 @@ public class NetworkManager {
         sbuf.writeByteArray(blocks, false);
         sbuf.writeByteArray(hmac, false);
         sbuf.writeByteArray(cipherblock, false);
-        parent.getChannel().sendAsync(sbuf.toArray());
+        return parent.getChannel().sendAsync(sbuf.toArray());
     }
 
-    private void sendPacket_AES_256_CBC_HMAC_SHA256_CTR(byte realId, boolean size, byte[] content, Priority priority) {
+    private SendItem sendPacket_AES_256_CBC_HMAC_SHA256_CTR(byte realId, boolean size, byte[] content, Priority priority) {
         byte[] plaintext;
         {
             PacketBuffer pbuf = new PacketBuffer(content.length + 1);
@@ -235,9 +232,9 @@ public class NetworkManager {
             buffer = pbuf.toArray();
         }
         if (priority == Priority.Realtime)
-            parent.getChannel().sendAsync(buffer);
+            return parent.getChannel().sendAsync(buffer);
         else
-            parent.getChannel().sendAsyncBackground(buffer);
+            return parent.getChannel().sendAsyncBackground(buffer);
     }
 
     public void generateKeys() {

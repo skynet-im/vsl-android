@@ -55,7 +55,7 @@ public class FileMeta {
             if (binaryData.length < 44)
                 throw new IllegalArgumentException("Invalid binary data length");
             read_v1_1(new PacketBuffer(binaryData));
-        } else if (connectionVersion == 2) {
+        } else if (connectionVersion >= 2) {
             if (binaryData.length < 78)
                 throw new IllegalArgumentException("Invalid binary data length");
             read_v1_2(new PacketBuffer(binaryData));

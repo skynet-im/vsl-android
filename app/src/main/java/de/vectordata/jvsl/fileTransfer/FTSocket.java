@@ -9,6 +9,7 @@ import java.io.StreamCorruptedException;
 import de.vectordata.jvsl.VSLClient;
 import de.vectordata.jvsl.crypt.ContentAlgorithm;
 import de.vectordata.jvsl.net.Priority;
+import de.vectordata.jvsl.net.SendItem;
 import de.vectordata.jvsl.net.packet.P06Accepted;
 import de.vectordata.jvsl.net.packet.P07OpenFileTransfer;
 import de.vectordata.jvsl.net.packet.P08FileHeader;
@@ -103,26 +104,34 @@ public class FTSocket {
             currentItem.onFileMetaTransferred();
             if (currentItem.getMode() == StreamMode.PUSH_FILE) {
                 currentItem.openStream();
-                sendBlock();
+                sendFile();
             } else if (currentItem.getMode() != StreamMode.PUSH_HEADER)
                 throw new IllegalStateException("Invalid state (mode) for pid 8");
         } else if (packet.accepted && packet.relatedPacket == 9) {
-            if (currentItem.getMode() != StreamMode.PUSH_FILE)
-                throw new IllegalStateException("Illegal state (mode) for pid 9");
-            if (currentItem.getHashInputStream() != null || currentItem.getHashInputStream() != null)
-                sendBlock();
-            else currentItem = null;
+            throw new UnsupportedOperationException();
         }
     }
 
-    private void sendBlock() throws IOException {
-        byte[] buffer = new byte[262144];
-        long pos = currentItem.getPosition();
-        int count = currentItem.getHashInputStream().read(buffer, 0, buffer.length);
-        parent.getManager().sendPacket(new P09FileDataBlock(pos, Util.takeBytes(buffer, count, 0)), Priority.Realtime);
-        currentItem.onProgress();
-        if (count < buffer.length)
-           currentItem.closeStream(true);
+    private void sendFile() {
+        new Thread(() -> {
+            try {
+                byte[] buffer = new byte[65536];
+                long position = 0;
+                int count = 0;
+                do {
+                    position = currentItem.getPosition();
+                    count = currentItem.getHashInputStream().read(buffer, 0, buffer.length);
+                    SendItem item = parent.getManager().sendPacket(new P09FileDataBlock(position, Util.takeBytes(buffer, count, 0)), Priority.Background);
+                    item.waitForSend();
+                    currentItem.onProgress();
+                } while (count == buffer.length);
+                currentItem.closeStream(true);
+                currentItem = null;
+            } catch (InterruptedException | IOException e) {
+                // TODO: When this fails, the connection is obviously broken and has to be closed.
+                Log.e(TAG, "Failed to send file", e);
+            }
+        }).start();
     }
 
     public void onPacketReceived(P07OpenFileTransfer packet) {
@@ -163,6 +172,10 @@ public class FTSocket {
             currentItem.closeStream(true);
             currentItem = null;
         }
-        parent.getManager().sendPacket(new P06Accepted(true, (byte) 9, ProblemCategory.None), Priority.Realtime);
+        else if (currentItem.getPosition() > currentItem.getFileMeta().getLength()){
+            Log.e(TAG, "End of file expected");
+
+            // TODO: Log and close connection
+        }
     }
 }

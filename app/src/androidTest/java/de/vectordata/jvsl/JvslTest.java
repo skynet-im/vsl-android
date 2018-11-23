@@ -40,7 +40,12 @@ public class JvslTest {
             public void onConnectionEstablished() {
                 Log.i(TAG, "Connection established");
                 client.sendPacket((byte) 5, new byte[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 0});
-                //testTransferDown(client, finished);
+                testTransferDown(client, finished);
+                /*try {
+                    testTransferUp(client);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }*/
             }
 
             @Override
@@ -93,7 +98,7 @@ public class JvslTest {
             @Override
             public void onFileMetaReceived(Object sender) {
                 FTEventArgs args1 = (FTEventArgs) sender;
-                byte[] keys = hexStringToByteArray("367fcb5beb54788a61772cf68575ae61ae37955a269903d6c057d3dc0bc4ae0eba4b81401932b2fd35bafa41addafeb7c06fb5d25e425de42be0b0e489df0721");
+                byte[] keys = hexStringToByteArray("efbde67e7540f964c45ee28cd9043603a7b5ab75d9033f6aebf535b0595869fb74a4061e52f6e59ce845d2f3ff4598123dfa91e5608c98f64a2c07a5e63b0b20");
                 if (args1.getFileMeta().getAlgorithm() == ContentAlgorithm.AES_256_CBC_HMAC_SHA_256) {
                     args1.getFileMeta().decrypt(Util.takeBytes(keys, 32, 0), Util.takeBytes(keys, 32, 0));
                 }
@@ -118,7 +123,7 @@ public class JvslTest {
     }
 
     private void testTransferUp(VSLClient client) throws IOException {
-        String file = "/storage/emulated/0/Download/260663711.webp";
+        String file = "/storage/emulated/0/Download/900.0.jvsldlf";
 
 
         ContentAlgorithm algo = ContentAlgorithm.AES_256_CBC_HMAC_SHA_256;

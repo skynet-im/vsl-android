@@ -76,7 +76,7 @@ public class AesShaInputStream extends HashInputStream {
     private int readFromStreamUntilItDies(byte[] buffer, int offset, int count) throws IOException {
         int done = 0;
         while (done < count - offset) {
-            int d1 = topStream.read(buffer, offset + done, count);
+            int d1 = topStream.read(buffer, offset + done, count-done);
             if (d1 < 0) return done;
             done += d1;
         }
