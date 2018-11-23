@@ -97,10 +97,11 @@ public class AesStatic {
         return bytes;
     }
 
-    public static byte[] incrementIv(byte[] receiveIv) {
-        PacketBuffer bufferIn = new PacketBuffer(receiveIv);
+    public static byte[] incrementIv(byte[] iv) {
+        PacketBuffer bufferIn = new PacketBuffer(iv);
         PacketBuffer bufferOut = new PacketBuffer();
         bufferOut.writeInt64(bufferIn.readInt64() + 1);
+        bufferOut.writeInt64(bufferIn.readInt64());
         return bufferOut.toArray();
     }
 }

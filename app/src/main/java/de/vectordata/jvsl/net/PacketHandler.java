@@ -33,13 +33,13 @@ public class PacketHandler {
                 // P00Handshake     -   Server only
                 // P01KeyExchange   -   Server only
                 // P02Certificate   -   Not supported in VSL 1.1/1.2
-                new PacketRule(new P03FinishHandshake(), CryptoAlgorithm.NONE, CryptoAlgorithm.AES_256_CBC_HMAC_SHA256_MP3),
+                new PacketRule(new P03FinishHandshake(), CryptoAlgorithm.NONE, CryptoAlgorithm.AES_256_CBC_HMAC_SHA256_CTR),
                 // P04ChangeIV      -   Server only
                 new PacketRule(new P05KeepAlive(), CryptoAlgorithm.NONE),
-                new PacketRule(new P06Accepted(), CryptoAlgorithm.AES_256_CBC_HMAC_SHA256_MP3),
-                new PacketRule(new P07OpenFileTransfer(), CryptoAlgorithm.AES_256_CBC_HMAC_SHA256_MP3),
-                new PacketRule(new P08FileHeader(), CryptoAlgorithm.AES_256_CBC_HMAC_SHA256_MP3),
-                new PacketRule(new P09FileDataBlock(), CryptoAlgorithm.AES_256_CBC_HMAC_SHA256_MP3)
+                new PacketRule(new P06Accepted(), CryptoAlgorithm.AES_256_CBC_HMAC_SHA256_CTR),
+                new PacketRule(new P07OpenFileTransfer(), CryptoAlgorithm.AES_256_CBC_HMAC_SHA256_CTR),
+                new PacketRule(new P08FileHeader(), CryptoAlgorithm.AES_256_CBC_HMAC_SHA256_CTR),
+                new PacketRule(new P09FileDataBlock(), CryptoAlgorithm.AES_256_CBC_HMAC_SHA256_CTR)
         );
     }
 
@@ -139,12 +139,11 @@ public class PacketHandler {
     }
 
     boolean isInternalPacket(byte id) {
-        return id < Constants.INTERNAL_PACKET_COUNT;
+        return (id & 0xFF) < Constants.INTERNAL_PACKET_COUNT;
     }
 
-
     PacketRule findRule(byte id, CryptoAlgorithm alg) {
-        PacketRule rule = registeredPackets[id];
+        PacketRule rule = registeredPackets[id & 0xFF];
         if (rule == null)
             return null;
         if (!rule.verifyAlgorithm(alg)) return null;

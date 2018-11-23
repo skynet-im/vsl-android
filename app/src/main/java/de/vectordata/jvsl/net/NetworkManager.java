@@ -25,6 +25,7 @@ public class NetworkManager {
     private byte[] aesKey;
     private byte[] hmacKey;
     private byte[] receiveIv;
+    private byte[] sendIv;
 
     public NetworkManager(VSLClient parent, String rsaKey) {
         this.parent = parent;
@@ -83,6 +84,8 @@ public class NetworkManager {
             case AES_256_CBC_HMAC_SHA256_MP3:
                 sendPacket_AES_256_CBC_HMAC_SHA256_MP3(realId, size, content);
                 break;
+            case AES_256_CBC_HMAC_SHA256_CTR:
+                sendPacket_AES_256_CBC_HMAC_SHA256_CTR(realId, size, content);
             default:
                 throw new IllegalArgumentException();
         }
@@ -162,8 +165,7 @@ public class NetworkManager {
         PacketBuffer plaintext = new PacketBuffer(plainbuffer);
         byte id = plaintext.readByte();
         boolean isInternal = parent.getHandler().isInternalPacket(id);
-        PacketRule rule = null;
-        if (isInternal && (rule = parent.getHandler().findRule(id, alg)) == null)
+        if (isInternal && parent.getHandler().findRule(id, alg) == null)
             return;
         byte[] content = plaintext.readToEnd();
         if (isInternal)
@@ -211,9 +213,35 @@ public class NetworkManager {
         parent.getChannel().sendAsync(sbuf.toArray());
     }
 
+    private void sendPacket_AES_256_CBC_HMAC_SHA256_CTR(byte realId, boolean size, byte[] content) {
+        byte[] plaintext;
+        {
+            PacketBuffer pbuf = new PacketBuffer(content.length + 1);
+            pbuf.writeByte(realId);
+            pbuf.writeByteArray(content, false);
+            plaintext = pbuf.toArray();
+        }
+        byte[] ciphertext = AesStatic.encrypt(plaintext, aesKey, sendIv);
+        sendIv = AesStatic.incrementIv(sendIv);
+        byte[] blocks = new UInt24(ciphertext.length / 16 - 1).toByteArray(UInt24.Endianness.LittleEndian);
+        byte[] hmac = HmacStatic.computeHmacSHA256(ciphertext, hmacKey);
+        byte[] buffer;
+        {
+            PacketBuffer pbuf = new PacketBuffer(1 + 3 + hmac.length + ciphertext.length);
+            pbuf.writeByte((byte) CryptoAlgorithm.AES_256_CBC_HMAC_SHA256_CTR.ordinal());
+            pbuf.writeByteArray(blocks, false);
+            pbuf.writeByteArray(hmac, false);
+            pbuf.writeByteArray(ciphertext, false);
+            buffer = pbuf.toArray();
+        }
+        parent.getChannel().sendAsync(buffer);
+    }
+
     public void generateKeys() {
         aesKey = AesStatic.generateKey();
-        hmacKey = AesStatic.generateKey();
+        receiveIv = AesStatic.generateIV();
+        sendIv = AesStatic.generateIV();
+        hmacKey = Util.concatBytes(sendIv, receiveIv);
     }
 
     public byte[] getAesKey() {

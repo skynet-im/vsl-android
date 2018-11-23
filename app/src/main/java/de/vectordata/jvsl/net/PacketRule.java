@@ -13,7 +13,7 @@ class PacketRule {
 
     PacketRule(Packet packet, CryptoAlgorithm... algs) {
         this.packet = packet;
-        algorithms = new boolean[4];
+        algorithms = new boolean[CryptoAlgorithm.values().length];
         for (CryptoAlgorithm alg : algs) {
             algorithms[alg.ordinal()] = true;
         }
