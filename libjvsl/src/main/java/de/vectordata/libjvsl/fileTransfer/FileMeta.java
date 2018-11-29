@@ -199,12 +199,7 @@ public class FileMeta {
                     PacketBuffer buffer = new PacketBuffer();
                     write_v1_2_core(buffer);
                     plainData = buffer.toArray();
-
-                    byte[] iv = AesStatic.generateIV();
-                    byte[] ciphertext = AesStatic.encrypt(plainData, aesKey, iv);
-                    buf.writeByteArray(HmacStatic.computeHmacSHA256(Util.concatBytes(iv, ciphertext), hmacKey), false);
-                    buf.writeByteArray(iv, false);
-                    buf.writeByteArray(ciphertext, false);
+                    AesStatic.encryptWithHmac(plainData, buf, false, hmacKey, aesKey);
                 } else
                     buf.writeByteArray(encryptedContent, false);
             }

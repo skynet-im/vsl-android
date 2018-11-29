@@ -13,7 +13,7 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
 import de.vectordata.libjvsl.util.PacketBuffer;
-import de.vectordata.libjvsl.util.cscompat.Ref;
+import de.vectordata.libjvsl.util.Util;
 
 /**
  * Created by Daniel Lerch on 07.03.2018.
@@ -103,5 +103,26 @@ public class AesStatic {
         bufferOut.writeInt64(bufferIn.readInt64() + 1);
         bufferOut.writeInt64(bufferIn.readInt64());
         return bufferOut.toArray();
+    }
+
+    public static byte[] decryptWithHmac(PacketBuffer input, int length, byte[] hmacKey, byte[] aesKey) {
+        if (length == 0)
+            length = (int) input.readUInt32();
+        byte[] hmac = input.readByteArray(32);
+        byte[] iv = input.readByteArray(16);
+        byte[] ciphertext = input.readByteArray(length - 48);
+        if (!Util.sequenceEqual(hmac, HmacStatic.computeHmacSHA256(Util.concatBytes(iv, ciphertext), hmacKey)))
+            throw new RuntimeException("Data corrupted");
+        return decrypt(ciphertext, aesKey, iv);
+    }
+
+    public static void encryptWithHmac(byte[] input, PacketBuffer output, boolean writeLength, byte[] hmacKey, byte[] aesKey) {
+        byte[] iv = AesStatic.generateIV();
+        byte[] ciphertext = AesStatic.encrypt(input, aesKey, iv);
+        if (writeLength)
+            output.writeUInt32(32 + 16 + Util.getTotalSize(input.length + 1, 16));
+        output.writeByteArray(HmacStatic.computeHmacSHA256(Util.concatBytes(iv, ciphertext), hmacKey), false);
+        output.writeByteArray(iv, false);
+        output.writeByteArray(ciphertext, false);
     }
 }

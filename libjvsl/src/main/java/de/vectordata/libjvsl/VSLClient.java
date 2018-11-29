@@ -97,6 +97,7 @@ public class VSLClient {
         if (listener != null) listener.onConnectionClosed(reason);
     }
 
+
     private byte invertId(byte id) {
         return (byte) (255 - id);
     }
