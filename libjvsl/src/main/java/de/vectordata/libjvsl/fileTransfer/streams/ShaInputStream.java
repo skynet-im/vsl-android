@@ -1,7 +1,5 @@
 package de.vectordata.libjvsl.fileTransfer.streams;
 
-import android.support.annotation.NonNull;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.DigestInputStream;
@@ -37,7 +35,7 @@ public class ShaInputStream extends HashInputStream {
     }
 
     @Override
-    public int read(@NonNull byte[] b, int off, int len) throws IOException {
+    public int read(byte[] b, int off, int len) throws IOException {
         int i = digestInputStream.read(b, off, len);
         position += i;
         return i;

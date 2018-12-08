@@ -1,7 +1,5 @@
 package de.vectordata.libjvsl.fileTransfer.streams;
 
-import android.support.annotation.NonNull;
-
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -44,7 +42,7 @@ public class AesShaInputStream extends HashInputStream {
     }
 
     @Override
-    public int read(@NonNull byte[] buffer, int offset, int count) throws IOException {
+    public int read(byte[] buffer, int offset, int count) throws IOException {
         int done = 0;
         CipherInputStream aesStream;
         if (cryptographicOperation == CryptographicOperation.Encrypt) {

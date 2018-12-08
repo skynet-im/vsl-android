@@ -1,7 +1,5 @@
 package de.vectordata.libjvsl.fileTransfer.streams;
 
-import android.support.annotation.NonNull;
-
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -17,16 +15,16 @@ public abstract class HashInputStream extends InputStream {
     public abstract byte[] getHash();
 
     @Override
-    public int read() throws IOException {
+    public int read() {
         throw new UnsupportedOperationException("Reference implementation does not provide these methods");
     }
 
     @Override
-    public int read(@NonNull byte[] b) throws IOException {
+    public int read(byte[] b) throws IOException {
         return read(b, 0, b.length);
     }
 
     @Override
-    public abstract int read(@NonNull byte[] b, int off, int len) throws IOException;
+    public abstract int read(byte[] b, int off, int len) throws IOException;
 
 }

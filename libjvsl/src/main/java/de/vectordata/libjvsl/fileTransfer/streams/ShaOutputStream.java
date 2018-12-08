@@ -1,7 +1,5 @@
 package de.vectordata.libjvsl.fileTransfer.streams;
 
-import android.support.annotation.NonNull;
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.security.DigestOutputStream;
@@ -37,7 +35,7 @@ public class ShaOutputStream extends HashOutputStream {
     }
 
     @Override
-    public void write(@NonNull byte[] b, int off, int len) throws IOException {
+    public void write(byte[] b, int off, int len) throws IOException {
         position += len;
         digestOutputStream.write(b, off, len);
     }
