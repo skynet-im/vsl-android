@@ -33,7 +33,10 @@ public class NetworkManager {
     }
 
     void receiveData() throws IOException {
-        CryptoAlgorithm algorithm = CryptoAlgorithm.values()[parent.getChannel().receiveByte()];
+        byte algo = parent.getChannel().receiveByte();
+        if (algo == -1)
+            throw new IOException("Reached end of stream while trying to receive");
+        CryptoAlgorithm algorithm = CryptoAlgorithm.values()[algo];
         switch (algorithm) {
             case NONE:
                 receivePacket_Plaintext();
