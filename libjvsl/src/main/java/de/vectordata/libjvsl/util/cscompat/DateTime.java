@@ -47,31 +47,31 @@ public class DateTime {
         this.dateData = dateToTicks(year, month, day) + timeToTicks(hour, minute, second);
     }
 
-    private int getHour() {
+    public int getHour() {
         return (int) ((getTicks() / TicksPerHour) % 24);
     }
 
-    private int getMinute() {
+    public int getMinute() {
         return (int) ((getTicks() / TicksPerMinute) % 60);
     }
 
-    private int getSecond() {
+    public int getSecond() {
         return (int) ((getTicks() / TicksPerSecond) % 60);
     }
 
-    private int getDay() {
+    public int getDay() {
         return GetDatePart(DatePartDay);
     }
 
-    private int getMonth() {
+    public int getMonth() {
         return GetDatePart(DatePartMonth);
     }
 
-    private int getYear() {
+    public int getYear() {
         return GetDatePart(DatePartYear);
     }
 
-    private long getTicks() {
+    public long getTicks() {
         return dateData & TicksMask;
     }
 
@@ -197,7 +197,7 @@ public class DateTime {
         return n - days[m - 1] + 1;
     }
 
-    private DateTime previousDay() {
+    public DateTime previousDay() {
         return new DateTime(getTicks() - TicksPerDay);
     }
 
@@ -209,7 +209,7 @@ public class DateTime {
         return isSameDay(DateTime.now());
     }
 
-    private boolean isSameDay(DateTime other) {
+    public boolean isSameDay(DateTime other) {
         return this.getDay() == other.getDay() && this.getMonth() == other.getMonth() && this.getYear() == other.getYear();
     }
 
