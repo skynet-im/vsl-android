@@ -77,6 +77,10 @@ public class VSLClient {
         return true;
     }
 
+    public void disconnect() {
+        channel.disconnect();
+    }
+
     public void onConnectionEstablished(int connectionVersion) {
         this.connectionVersion = connectionVersion;
         connectionAvailable = true;
