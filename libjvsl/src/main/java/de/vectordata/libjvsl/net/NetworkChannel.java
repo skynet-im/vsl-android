@@ -53,6 +53,14 @@ public class NetworkChannel {
         }
     }
 
+    public void disconnect() {
+        try {
+            socket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void startThreads() {
         startSenderThread();
         startReceiverThread();
