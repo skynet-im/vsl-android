@@ -7,16 +7,16 @@ public class SendItem {
     private final byte[] data;
     private final Semaphore semaphore;
 
-    public SendItem(byte[] data) {
+    SendItem(byte[] data) {
         this.data = data;
         this.semaphore = new Semaphore(0);
     }
 
-    public byte[] getData() {
+    byte[] getData() {
         return data;
     }
 
-    public void notifySend() {
+    void notifySend() {
         semaphore.release();
     }
 

@@ -213,6 +213,10 @@ public class DateTime {
         return this.getDay() == other.getDay() && this.getMonth() == other.getMonth() && this.getYear() == other.getYear();
     }
 
+    public Date toJavaDate() {
+        return DateUtil.createDate(getYear(), getMonth(), getDay(), getHour(), getMinute(), getSecond());
+    }
+
     public String toDateTimeString(Context context) {
         Date date = DateUtil.createDate(getYear(), getMonth(), getDay());
         return DateFormat.getDateFormat(context).format(date) + " " + DateFormat.getTimeFormat(context).format(date);

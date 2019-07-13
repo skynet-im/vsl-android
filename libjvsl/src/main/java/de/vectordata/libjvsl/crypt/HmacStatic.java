@@ -24,7 +24,7 @@ public class HmacStatic {
             mac.init(keySpec);
             return mac.doFinal(input);
         } catch (NoSuchAlgorithmException | InvalidKeyException e) {
-            Log.e(TAG, "Failed to compute HmacStatic", e);
+            Log.e(TAG, "Failed to compute hmac", e);
         }
         return null;
     }
