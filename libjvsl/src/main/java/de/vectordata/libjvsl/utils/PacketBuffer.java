@@ -1,25 +1,25 @@
-package de.vectordata.libjvsl.util;
+package de.vectordata.libjvsl.utils;
 
 import java.nio.ByteBuffer;
 import java.util.List;
-
-import de.vectordata.libjvsl.util.cscompat.DateTime;
 
 /**
  * Created by Twometer on 07.03.2018.
  * (c) 2018 Twometer
  */
 
+@SuppressWarnings("WeakerAccess")
 public class PacketBuffer {
+    public static int SIZE_SMALL = 8192;
+    public static int SIZE_MEDIUM = 32767;
+    public static int SIZE_BIG = 139264;
+
     private ByteBuffer buffer;
+
     private int allocated;
 
     public PacketBuffer(byte[] buf) {
         buffer = ByteBuffer.wrap(buf);
-    }
-
-    private PacketBuffer(boolean big) {
-        buffer = ByteBuffer.allocate(big ? 131072 + 8192 : 32767);
     }
 
     public PacketBuffer(int size) {
@@ -27,7 +27,7 @@ public class PacketBuffer {
     }
 
     public PacketBuffer() {
-        this(true);
+        this(SIZE_SMALL);
     }
 
     public int getLength() {
@@ -100,7 +100,7 @@ public class PacketBuffer {
     }
 
     public short readInt16() {
-        return ByteBuffer.wrap(Util.reverseBytes(readBytes(2))).getShort();
+        return ByteBuffer.wrap(ByteUtils.reverseBytes(readBytes(2))).getShort();
     }
 
     public void writeUInt16(int i) {
@@ -174,7 +174,7 @@ public class PacketBuffer {
     }
 
     public byte[] toArray() {
-        return Util.takeBytes(buffer.array(), allocated, 0);
+        return ByteUtils.takeBytes(buffer.array(), allocated, 0);
     }
 
     @Override

@@ -1,4 +1,4 @@
-package de.vectordata.libjvsl.util.cscompat;
+package de.vectordata.libjvsl.utils;
 
 import android.content.Context;
 import android.text.format.DateFormat;
@@ -13,10 +13,10 @@ import java.util.TimeZone;
  * (c) 2018 Twometer
  */
 
+@SuppressWarnings("WeakerAccess")
 public class DateTime {
 
-    // This is the .NET implementation of DateTime
-    // Made using the Microsoft ReferenceSource:
+    // This is a java port of the .NET implementation of DateTime, based on
     // https://referencesource.microsoft.com/#mscorlib/system/datetime.cs
 
     private static final long TicksPerMillisecond = 10000;
@@ -43,36 +43,8 @@ public class DateTime {
 
     private final long dateData;
 
-    private DateTime(int year, int month, int day, int hour, int minute, int second) {
+    public DateTime(int year, int month, int day, int hour, int minute, int second) {
         this.dateData = dateToTicks(year, month, day) + timeToTicks(hour, minute, second);
-    }
-
-    public int getHour() {
-        return (int) ((getTicks() / TicksPerHour) % 24);
-    }
-
-    public int getMinute() {
-        return (int) ((getTicks() / TicksPerMinute) % 60);
-    }
-
-    public int getSecond() {
-        return (int) ((getTicks() / TicksPerSecond) % 60);
-    }
-
-    public int getDay() {
-        return GetDatePart(DatePartDay);
-    }
-
-    public int getMonth() {
-        return GetDatePart(DatePartMonth);
-    }
-
-    public int getYear() {
-        return GetDatePart(DatePartYear);
-    }
-
-    public long getTicks() {
-        return dateData & TicksMask;
     }
 
     private DateTime(long ticks) {
@@ -101,55 +73,6 @@ public class DateTime {
 
     private boolean isLeapYear(int year) {
         return year % 4 == 0 && (year % 100 != 0 || year % 400 == 0);
-    }
-
-    public long toBinary() {
-        long millisecondsOffset = TimeZone.getDefault().getRawOffset();
-
-        long offset = TicksPerMillisecond * millisecondsOffset;
-
-
-        long ticks = getTicks();
-
-        // Normalize to UTC - no daylight savings time
-        if (TimeZone.getDefault().inDaylightTime(new Date())) {
-            ticks -= TicksPerHour;
-        }
-
-        long storedTicks = ticks - offset;
-        if (storedTicks < 0) {
-            storedTicks = TicksCeiling + storedTicks;
-        }
-        return storedTicks | LocalMask;
-    }
-
-    public static DateTime fromBinary(long bin) {
-        if ((bin & LocalMask) != 0) {
-            long ticks = bin & TicksMask;
-
-            if (ticks > TicksCeiling - TicksPerDay) {
-                ticks = ticks - TicksCeiling;
-            }
-
-            long millisecondsOffset = TimeZone.getDefault().getRawOffset();
-
-            long offsetTicks = TicksPerMillisecond * millisecondsOffset;
-
-            ticks += offsetTicks;
-
-            // Is it daylight savings time?
-            if (TimeZone.getDefault().inDaylightTime(new Date())) {
-                ticks += TicksPerHour;
-            }
-
-            if (ticks < 0)
-                ticks += TicksPerDay;
-            return new DateTime(ticks);
-        } else {
-            long ticks = bin & TicksMask;
-            return new DateTime(ticks);
-        }
-
     }
 
     private int GetDatePart(int part) {
@@ -195,6 +118,82 @@ public class DateTime {
         if (part == DatePartMonth) return m;
         // Return 1-based day-of-month
         return n - days[m - 1] + 1;
+    }
+
+    public long toBinary() {
+        long millisecondsOffset = TimeZone.getDefault().getRawOffset();
+
+        long offset = TicksPerMillisecond * millisecondsOffset;
+
+        long ticks = getTicks();
+
+        // Normalize to UTC - no daylight savings time
+        if (TimeZone.getDefault().inDaylightTime(new Date())) {
+            ticks -= TicksPerHour;
+        }
+
+        long storedTicks = ticks - offset;
+        if (storedTicks < 0) {
+            storedTicks = TicksCeiling + storedTicks;
+        }
+        return storedTicks | LocalMask;
+    }
+
+    public static DateTime fromBinary(long bin) {
+        if ((bin & LocalMask) != 0) {
+            long ticks = bin & TicksMask;
+
+            if (ticks > TicksCeiling - TicksPerDay) {
+                ticks = ticks - TicksCeiling;
+            }
+
+            long millisecondsOffset = TimeZone.getDefault().getRawOffset();
+
+            long offsetTicks = TicksPerMillisecond * millisecondsOffset;
+
+            ticks += offsetTicks;
+
+            // Is it daylight savings time?
+            if (TimeZone.getDefault().inDaylightTime(new Date())) {
+                ticks += TicksPerHour;
+            }
+
+            if (ticks < 0)
+                ticks += TicksPerDay;
+            return new DateTime(ticks);
+        } else {
+            long ticks = bin & TicksMask;
+            return new DateTime(ticks);
+        }
+
+    }
+
+    public int getHour() {
+        return (int) ((getTicks() / TicksPerHour) % 24);
+    }
+
+    public int getMinute() {
+        return (int) ((getTicks() / TicksPerMinute) % 60);
+    }
+
+    public int getSecond() {
+        return (int) ((getTicks() / TicksPerSecond) % 60);
+    }
+
+    public int getDay() {
+        return GetDatePart(DatePartDay);
+    }
+
+    public int getMonth() {
+        return GetDatePart(DatePartMonth);
+    }
+
+    public int getYear() {
+        return GetDatePart(DatePartYear);
+    }
+
+    public long getTicks() {
+        return dateData & TicksMask;
     }
 
     public DateTime previousDay() {

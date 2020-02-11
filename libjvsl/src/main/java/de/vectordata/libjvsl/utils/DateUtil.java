@@ -1,4 +1,4 @@
-package de.vectordata.libjvsl.util.cscompat;
+package de.vectordata.libjvsl.utils;
 
 import java.util.Calendar;
 import java.util.Date;

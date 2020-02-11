@@ -1,11 +1,12 @@
-package de.vectordata.libjvsl.util;
+package de.vectordata.libjvsl.utils;
 
 /**
  * Created by Daniel Lerch on 07.03.2018.
  * © 2018 Daniel Lerch
  */
 
-public class Util {
+@SuppressWarnings("WeakerAccess")
+public class ByteUtils {
 
     @SuppressWarnings("SpellCheckingInspection")
     private final static char[] hexArray = "0123456789abcdef".toCharArray();
@@ -13,9 +14,9 @@ public class Util {
     /**
      * Splits a byte array into blocks.
      *
-     * @param b
-     * @param blockSize
-     * @return
+     * @param b         byte array
+     * @param blockSize size of the individual blocks
+     * @return an array of arrays (blocks)
      */
     public static byte[][] splitBytes(byte[] b, int blockSize) {
         int length = b.length;
@@ -40,7 +41,7 @@ public class Util {
      * Concatenates multiple byte arrays to one.
      *
      * @param byteArrays An array of byte arrays to concatenate.
-     * @return
+     * @return The fully concatenated array
      */
     public static byte[] concatBytes(byte[]... byteArrays) {
         int n = 0;
@@ -79,8 +80,8 @@ public class Util {
     /**
      * Converts a byte array to a hexadecimal string.
      *
-     * @param buffer
-     * @return
+     * @param buffer The byte array to convert
+     * @return The hex string
      */
     public static String toHexString(byte[] buffer) {
         char[] hexChars = new char[buffer.length * 2];
@@ -97,7 +98,7 @@ public class Util {
      *
      * @param normalSize The default size of the input data.
      * @param blockSize  The blocksize of the algorithm to apply on the data.
-     * @return
+     * @return The total size
      */
     public static int getTotalSize(int normalSize, int blockSize) {
         int mod = normalSize % blockSize;
@@ -112,7 +113,7 @@ public class Util {
      *
      * @param normalSize The default size of the input data.
      * @param blockSize  The blocksize of the algorithm to apply on the data.
-     * @return
+     * @return The total size
      */
     public static long getTotalSize(long normalSize, int blockSize) {
         long mod = normalSize % blockSize;
